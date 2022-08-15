@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="rv_edit_margin_top" type="dimen">44dp</item>
+    <dimen name="buttons_test_margin_bot">3dp</dimen>
+    <dimen name="buttons_text_size">14sp</dimen>
+    <dimen name="edit_text_edit_test_fragment">20sp</dimen>
+    <dimen name="edit_text_margin_top">4dp</dimen>
+</resources>

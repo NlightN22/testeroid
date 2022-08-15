@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".screens.edittest.EditTestFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        >
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:text="@string/edit_test_title"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.01" />
+
+        <TextView
+            android:id="@+id/tv_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="@color/gray_50"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="ID" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            app:boxStrokeColor="@color/yellow"
+            app:hintTextColor="@color/yellow"
+            android:hint="@string/edit_test_title_hint"
+            android:id="@+id/text_input_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:counterEnabled="true"
+            app:counterMaxLength="60"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView">
+
+            <EditText
+                android:id="@+id/edTitle"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:gravity="center"
+                android:scrollbars="vertical"
+                android:inputType="textMultiLine"
+                android:nextFocusRight="@+id/editTextVariant1"
+                android:textColor="@color/dark_blue"
+                android:textCursorDrawable="@drawable/ic_cursor_3dp"
+                android:textSize="@dimen/buttons_text_size" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <TextView
+            android:id="@+id/variants"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:text="@string/edit_variant_title"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            app:boxStrokeColor="@color/yellow"
+            app:hintTextColor="@color/yellow"
+            android:hint="@string/edit_test_variant_hint"
+            android:id="@+id/text_input_layout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/variants"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="@dimen/edit_text_margin_top"
+            app:endIconMode="custom"
+            app:endIconCheckable="true"
+            app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextVariant1"
+            android:textCursorDrawable="@drawable/ic_cursor_3dp"
+            android:textColor="@color/dark_blue"
+            android:textSize="@dimen/buttons_text_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="textPersonName"
+            android:maxLength="20"
+            />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            app:boxStrokeColor="@color/yellow"
+            app:hintTextColor="@color/yellow"
+            android:hint="@string/edit_test_variant_hint"
+            android:id="@+id/text_input_layout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout1"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="@dimen/edit_text_margin_top"
+            app:endIconMode="custom"
+            app:endIconCheckable="true"
+            app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextVariant2"
+                android:textCursorDrawable="@drawable/ic_cursor_3dp"
+                android:textColor="@color/dark_blue"
+                android:textSize="@dimen/buttons_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="textPersonName"
+                android:maxLength="20"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            app:boxStrokeColor="@color/yellow"
+            app:hintTextColor="@color/yellow"
+            android:hint="@string/edit_test_variant_hint"
+            android:id="@+id/text_input_layout3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout2"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="@dimen/edit_text_margin_top"
+            app:endIconMode="custom"
+            app:endIconCheckable="true"
+            app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextVariant3"
+                android:textCursorDrawable="@drawable/ic_cursor_3dp"
+                android:textColor="@color/dark_blue"
+                android:textSize="@dimen/buttons_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="textPersonName"
+                android:maxLength="20"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            app:boxStrokeColor="@color/yellow"
+            app:hintTextColor="@color/yellow"
+            android:hint="@string/edit_test_variant_hint"
+            android:id="@+id/text_input_layout4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout3"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="@dimen/edit_text_margin_top"
+            app:endIconMode="custom"
+            app:endIconCheckable="true"
+            app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextVariant4"
+                android:imeOptions="actionDone"
+                android:textCursorDrawable="@drawable/ic_cursor_3dp"
+                android:textColor="@color/dark_blue"
+                android:textSize="@dimen/buttons_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="textPersonName"
+                android:maxLength="20"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btn_add"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="@dimen/edit_text_margin_top"
+            android:layout_marginEnd="10dp"
+            android:text="ADD"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout4" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

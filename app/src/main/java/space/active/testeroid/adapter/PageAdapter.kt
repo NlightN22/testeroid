@@ -1,0 +1,27 @@
+package space.active.testeroid.adapter
+
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import space.active.testeroid.*
+import space.active.testeroid.screens.edittestlist.EditTestListFragment
+import space.active.testeroid.screens.score.ScoreFragment
+import space.active.testeroid.screens.test.TestFragment
+import space.active.testeroid.screens.user.UserFragment
+
+class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle) {
+    override fun getItemCount(): Int {
+        return NUMBER_OF_PAGES
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        return when(position) {
+            0 -> EditTestListFragment()
+            1 -> TestFragment()
+            2 -> UserFragment()
+            3 -> ScoreFragment()
+            else -> TestFragment()
+        }
+    }
+}
