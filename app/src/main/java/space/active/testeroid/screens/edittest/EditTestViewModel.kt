@@ -23,8 +23,8 @@ class EditTestViewModel(
         MutableLiveData<ArrayList<ViewStateEditTest.Variant>>(arrayListOf()) // Important to create zero size array
     val variantList: LiveData<ArrayList<ViewStateEditTest.Variant>> = _variantList
 
-    private val selectedCorrectVariantsMutable = MutableLiveData(arrayListOf<Int>())
-    val selectedCorrectVariants: LiveData<ArrayList<Int>> = selectedCorrectVariantsMutable
+//    private val _selectedVariants = MutableLiveData(arrayListOf<Int>())
+//    val selectedVariants: LiveData<ArrayList<Int>> = _selectedVariants
 
 
     // If you use ArrayList you need to notify observer after operations with Array
@@ -37,12 +37,17 @@ class EditTestViewModel(
             is ViewStateEditTest.Id -> {_id.postValue(viewState.num)}
             is ViewStateEditTest.Title -> {_title.postValue(viewState.text)}
             is ViewStateEditTest.Variant -> {
-                _variantList.value?.let {
-                    it.add(viewState)
+                _variantList.value?.let { list ->
+                    list.map {
+                        if (it.position == viewState.position){
+                            it.question.correctAnswer = viewState.question.correctAnswer
+                            it.question.questionName = viewState.question.questionName
+                        }
+                    }
+                    _variantList.notifyObserver()
                 } ?: run {
                     Log.e(TAG, "Error fun setElementsState _variantList.value is ${_variantList.value}")
                 }
-                _variantList.notifyObserver()
             }
         }
     }
@@ -54,6 +59,18 @@ class EditTestViewModel(
         }
     }
 
+    fun setViewStateForAdd (listSize: Int){
+        _variantList.value?.let {list ->
+            for (i in 0 until listSize) {
+                val viewState = ViewStateEditTest.Variant(position = i, Questions())
+                list.add(viewState)
+                setElementsState(viewState)
+            }
+        }?: run {
+            Log.e(TAG, "Error in fun setViewStateForAdd _variantList.value: ${_variantList.value}")
+        }
+    }
+
     fun testAdapter(testWithQuestions: TestWithQuestions){
         val test = testWithQuestions.tests
         val questions = testWithQuestions.questions
@@ -61,46 +78,99 @@ class EditTestViewModel(
         setElementsState(ViewStateEditTest.Id(test.testId))
         setElementsState(ViewStateEditTest.Title(test.testName))
         questions.forEachIndexed { index, question ->
-            setElementsState(
+            val viewState =
                 ViewStateEditTest.Variant(
                     position = index,
-                    question.questionName,
-                    question.correctAnswer
+                    question
                 )
-            )
+            _variantList.value?.let { list ->
+                if (index <= 3) {
+                    list.add(viewState)
+                    setElementsState(viewState)
+                } else {
+                    Log.e (TAG, "Error in fun testAdapter _variantList.value index is ${index}")
+                }
+            } ?: run {
+                Log.e (TAG, "Error in fun testAdapter _variantList.value is ${_variantList.value}")
+            }
+
+        }
+    }
+
+    fun  preparingDataForSending(testId: String, testName: String, textList: List<String>){
+        val insertTest = Tests()
+        if (testId.isNotEmpty()) {insertTest.testId = testId.toLong()}
+        insertTest.testName = testName
+
+        _variantList.value?.let { list ->
+            list.forEachIndexed { index, item ->
+                item.question.questionName = textList[index]
+            }
+            Log.e(TAG, "Add variants check to DB: $list")
+            list.forEach {item ->
+                Log.e(TAG, "$item")
+            }
+            val questions: List<Questions> = list.map { it.question }
+            questions.forEach {
+                Log.e(TAG, "Add variants name questionList: ${it.questionId} ${it.questionName} ${it.correctAnswer}")
+            }
+                    insertTestToRepository(insertTest, questions)
+        }?: run {
+            Log.e(TAG, "Error in fun  preparingDataForSending _variantList.value: ${_variantList.value}")
         }
 
     }
 
-    fun addNewTestWithQuestions(test: Tests, questions: List<Questions>){
+    fun insertTestToRepository(test: Tests, questions: List<Questions>){
         viewModelScope.launch {
             repository.addNewTestWithQuestions(test, questions)
         }
     }
 
-    fun sendDataToRepository(test: String) {
-
-    }
 
     fun onClickVariantEdit(position: Int) {
         _variantList.value?.let { list ->
-            list.forEachIndexed { index, variant ->
-                if (index == position) {
-                    Log.e(TAG, "fun onClickVariantEdit $variant")
-                    variant.checked = !variant.checked
+            val filteredList = list.filter { it.position == position }
+            if (filteredList.isEmpty()) {
+                val viewState = ViewStateEditTest.Variant(position = position,
+                    question = Questions(correctAnswer = true))
+                list.add(viewState)
+                setElementsState(viewState)
+            } else if (filteredList.isNotEmpty()) {
+                filteredList.forEach() { item ->
+                    list.map { variant ->
+                        if (variant.position == item.position) {
+                            variant.question.correctAnswer = !variant.question.correctAnswer
+                            val viewState = ViewStateEditTest.Variant(
+                                position = variant.position,
+                                question = variant.question
+                            )
+                            setElementsState(viewState)
+                        }
+                    }
                 }
             }
-        }?: run {
-            Log.e(TAG, "Error fun onClickVariantEdit _variantList.value is ${_variantList.value}")
         }
-        _variantList.notifyObserver()
+
+//        setElementsState(ViewStateEditTest.Variant(position = position))
+//        _variantList.value?.let { list ->
+//            list.forEachIndexed { index, variant ->
+//                if (index == position) {
+//                    Log.e(TAG, "fun onClickVariantEdit $variant")
+//                    variant.checked = !variant.checked
+//                }
+//            }
+//        }?: run {
+//            Log.e(TAG, "Error fun onClickVariantEdit _variantList.value is ${_variantList.value}")
+//        }
+//        _variantList.notifyObserver()
     }
 
     fun clearCorrectVariants(){
-        selectedCorrectVariantsMutable.value?.let {
-            it.clear()
-            selectedCorrectVariantsMutable.notifyObserver()
-        }
+//        _selectedVariants.value?.let {
+//            it.clear()
+//            _selectedVariants.notifyObserver()
+//        }
     }
 
     override fun onCleared() {
@@ -112,6 +182,7 @@ class EditTestViewModel(
     sealed class ViewStateEditTest{
         data class Id (val num: Long): ViewStateEditTest()
         data class Title (var text: String): ViewStateEditTest()
-        data class Variant (var position: Int, var text: String, var checked: Boolean): ViewStateEditTest()
+        data class Variant (var position: Int,
+                            var question: Questions): ViewStateEditTest()
     }
 }

@@ -11,7 +11,7 @@ data class Questions(
     @ColumnInfo
     var testIdMain: Long = 0,
     @ColumnInfo
-    val questionName: String = "empty",
+    var questionName: String = "",
     @ColumnInfo
     var correctAnswer: Boolean = false,
 )

@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 @Entity
 data class Tests (
     @PrimaryKey(autoGenerate = true)
-    val testId: Long = 0,
+    var testId: Long = 0,
     @ColumnInfo
-    val testName: String =  "empty"
+    var testName: String =  "empty"
 )
 // Serializable need to work sending serializable data to fragment

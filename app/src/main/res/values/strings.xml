@@ -11,6 +11,8 @@
     <string name="edit_variant_title">Variants:</string>
     <string name="edit_test_title_hint">Title</string>
     <string name="edit_test_variant_hint">Variant</string>
+    <string name="edit_test_button_add">Add</string>
+    <string name="edit_test_button_close">Close</string>
 
     <string name="user_list_title">Select user</string>
     <string name="user_list_add_button">Add user item</string>
