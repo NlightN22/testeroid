@@ -15,8 +15,8 @@ import space.active.testeroid.TAG
 import space.active.testeroid.adapter.RecyclerViewAdapter
 import space.active.testeroid.databinding.FragmentEditTestListBinding
 import space.active.testeroid.db.modelsdb.Tests
-import space.active.testeroid.screens.MainActivityViewModel
-import space.active.testeroid.screens.MainActivityViewModelFactory
+import space.active.testeroid.screens.main.MainActivityViewModel
+import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.edittest.EditTestFragment
 
 
@@ -112,7 +112,7 @@ class EditTestListFragment : Fragment() {
             MainActivityViewModel.ViewStateMain.BottomToolBarButtons(
             add = false,
             edit = true,
-            delete = false
+            delete = true
         ))
     }
 

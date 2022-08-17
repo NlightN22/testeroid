@@ -6,6 +6,7 @@ import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TestsDao {
@@ -67,6 +68,10 @@ interface TestsDao {
 
     @Query("SELECT * FROM Tests WHERE testId = :testId")
     suspend fun getTest(testId: Long): Tests
+
+    @Transaction
+    @Query("SELECT * FROM Tests WHERE testId = :testId")
+    fun getTestWithQuestionsFlow(testId: Long): Flow<TestWithQuestions>
 
     @Transaction
     @Query("SELECT * FROM Tests WHERE testId = :testId")

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
 import space.active.testeroid.APP
 import space.active.testeroid.R
@@ -160,6 +161,24 @@ class UserEditFragment : Fragment() {
 
     private fun toastMessage(message: String){
         Toast.makeText(this.requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun backPressOverride(){
+        requireActivity()
+            .onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    Log.d(TAG, "Fragment back pressed invoked")
+                    // Do custom work here
+
+//                // if you want onBackPressed() to be called as normal afterwards
+//                if (isEnabled) {
+//                    isEnabled = false
+//                    requireActivity().onBackPressed()
+//                }
+                }
+            }
+            )
     }
 }
 

@@ -6,6 +6,7 @@ import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
+import kotlinx.coroutines.flow.Flow
 
 class RepositoryRealization(private val dao: TestsDao): Repository {
     override fun allUsers(): LiveData<List<Users>> {
@@ -45,8 +46,8 @@ class RepositoryRealization(private val dao: TestsDao): Repository {
         return dao.getAllTestsWithQuestions()
     }
 
-    override suspend fun getTestWithQuestions(testId: Long): TestWithQuestions {
-        return dao.getTestWithQuestions(testId)
+    override fun getTestWithQuestionsFlow(testId: Long): Flow<TestWithQuestions> {
+        return dao.getTestWithQuestionsFlow(testId)
     }
 
     override suspend fun deleteTestWithQuestions(testId: Long) {

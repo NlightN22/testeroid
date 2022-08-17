@@ -4,7 +4,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="error">Error fun %s is %s</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_test">Add test item</string>
     <string name="scrolldescription">Scroll into edit test</string>
     <string name="edit_test_title">Input you test here:</string>
@@ -43,5 +42,8 @@
     <string name="bottom_menu_add">Add</string>
     <string name="bottom_menu_edit">Edit</string>
     <string name="bottom_menu_delete">Delete</string>
+
+    <string name="main_exit_toast">Press back again to exit</string>
+
 
 </resources>

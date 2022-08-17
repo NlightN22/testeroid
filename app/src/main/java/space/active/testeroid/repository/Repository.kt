@@ -5,6 +5,7 @@ import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
+import kotlinx.coroutines.flow.Flow
 
 interface Repository {
 
@@ -22,7 +23,7 @@ interface Repository {
 
     // TestWithQuestions
     fun allTestsWithQuestions(): LiveData<List<TestWithQuestions>>
-    suspend fun getTestWithQuestions(testId: Long): TestWithQuestions
+    fun getTestWithQuestionsFlow(testId: Long): Flow<TestWithQuestions>
     suspend fun deleteTestWithQuestions(testId: Long)
 
 }

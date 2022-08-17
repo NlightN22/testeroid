@@ -1,4 +1,4 @@
-package space.active.testeroid.screens
+package space.active.testeroid.screens.main
 
 import android.content.Context
 import androidx.lifecycle.LiveData

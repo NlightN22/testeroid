@@ -17,8 +17,8 @@ import space.active.testeroid.TAG
 import space.active.testeroid.adapter.RecyclerViewAdapter
 import space.active.testeroid.databinding.EditTextInputPasswordBinding
 import space.active.testeroid.databinding.FragmentUserBinding
-import space.active.testeroid.screens.MainActivityViewModel
-import space.active.testeroid.screens.MainActivityViewModelFactory
+import space.active.testeroid.screens.main.MainActivityViewModel
+import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.useredit.UserEditFragment
 
 class UserFragment : Fragment() {

@@ -7,8 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.activity.OnBackPressedCallback
+import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -40,19 +46,11 @@ class EditTestFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         APP.binding.pager.visibility = View.GONE // hide pager
-
         init()
-
-    }
-    private fun init(){
-        stateViewControllers() // Control and save interface statement
-        setValuesFromExternal() // set incoming data to interface !After statements controllers
-        buttonListeners()
     }
 
-    private fun stateViewControllers(){
+    private fun init() {
         listEditVariant = listOf<EditText>(
             binding.editTextVariant1,
             binding.editTextVariant2,
@@ -60,149 +58,206 @@ class EditTestFragment : Fragment() {
             binding.editTextVariant4,
         )
 
-        listOfAllEdits = ArrayList(listEditVariant)
-        listOfAllEdits.add(binding.edTitle)
-
-    }
-
-    private fun setValuesFromExternal(){
-        val currentTest = viewModelEditList.testForEdit.value
-        Log.e(TAG, "EditTestFragment created")
-        Log.e(TAG, "Come to EditTest $currentTest")
-        if (currentTest != null) {
-            // If we edit incoming data
-            viewModel.setCurrentTest(currentTest)
-//            drawCurrentTest(currentTest)
-        } else {
-            // if add new data
-            viewModel.setViewStateForAdd(listEditVariant.size)
-        }
-        drawCurrentTest()
-    }
-
-    private fun buttonListeners(){
-
-        binding.btnAdd.setOnClickListener {
-            onClickAdd()
-        }
-
-        binding.btnClose.setOnClickListener {
-            onClickClose()
-        }
-
         listInputLayouts = listOf(
             binding.textInputLayout1,
             binding.textInputLayout2,
             binding.textInputLayout3,
             binding.textInputLayout4,
         )
-        listInputLayouts.forEachIndexed {
-                index, inputLayout ->
-            inputLayout.setEndIconOnClickListener {
-                onClickVariant(index)
-            }
-        }
+        observers()
+        listeners()
     }
 
-    private fun drawCurrentTest(){
-        viewModel.id.observe(viewLifecycleOwner){ binding.tvId.text = it.toString()}
-        viewModel.title.observe(viewLifecycleOwner){ binding.edTitle.setText(it)}
+    private fun observers() {
+        lifecycleScope.launchWhenCreated {
+            viewModelEditList.testForEdit.value?.let { testId ->
+                viewModel.uiState(EditTestViewModel.EditTestUiState.ShowIncome(testId))
+            } ?: run {
+                viewModel.uiState(EditTestViewModel.EditTestUiState.ShowNew)
+            }
+        }
 
-        viewModel.variantList.observe(viewLifecycleOwner) { variantList->
-            Log.e(TAG, "drawCurrentTest variantList: $variantList")
-            if (variantList.isNotEmpty()) {
-                variantList.forEachIndexed { index, variant ->
-                    viewModelEditList.testForEdit.value?.let {
-                        listEditVariant[variant.position].setText(variant.question.questionName)
-                    }
-                    setTextInputLayoutCheck(listInputLayouts[variant.position], variant.question.correctAnswer)
+            viewModel.formState.observe(viewLifecycleOwner) { formState ->
+                binding.tvId.text = formState.id
+                binding.edTitle.setText(formState.title)
+                listEditVariant.forEachIndexed { index, editText ->
+                    editText.setText(formState.listVariants[index])
                 }
-//                // set text for EditText
-//                listEditVariant.mapIndexed { index, view ->
-//                    view.setText(variantList[index].text)
-//                }
-//                // set Icon Tint for TextInputLayout
-//                listInputLayouts.mapIndexed{ index, textInputLayout ->
-//                    setTextInputLayoutCheck(textInputLayout, variantList[index].checked)
-//                }
-            } else {
-                Log.e(TAG, "Error fun drawCurrentTest variantList is $variantList")
-            }
+                Log.e(TAG, "formState $formState")
+                listInputLayouts.forEachIndexed { index, textInputLayout ->
+                    textInputLayout.check(formState.listSelected[index])
+                }
         }
     }
 
-    private fun setTextInputLayoutCheck(inputLayout: TextInputLayout, state: Boolean){
+    fun TextInputLayout.check(state: Boolean) {
         val checked = context?.getColorStateList(R.color.yellow)
         val unchecked = context?.getColorStateList(R.color.gray_50)
 
-        if (state) {inputLayout.setEndIconTintList(checked)
-        } else {inputLayout.setEndIconTintList(unchecked)}
+        Log.e(TAG, "TextInputLayout.check $state")
+        if (state) {this.setEndIconTintList(checked)
+        } else {this.setEndIconTintList(unchecked)}
     }
 
-    private fun onClickVariant(position: Int){
-        Log.e(TAG, "onClickVariant: $position")
-        viewModel.onClickVariantEdit(position)
-    }
-
-    private fun onClickAdd(){
-
-        val testId: String = binding.tvId.text.toString()
-        val testName: String = binding.edTitle.text.toString()
-        val variantList: List<String> = listEditVariant.map { it.text.toString() }
-
-        viewModel.preparingDataForSending(testId, testName, variantList)
-
-//        // Check testId if it not null than replace item
-//        Log.e(TAG, "Text in tvId: ${binding.tvId.text.isEmpty()}")
-//        val test = if (binding.tvId.text.isEmpty()) {
-//            Tests(testName = binding.edTitle.text.toString())
-//        }else {
-//            Tests(testName = binding.edTitle.text.toString(),
-//                testId = binding.tvId.text.toString().toLong())
-//        }
-//        // Make variant list and set text from editTextVariant
-//        val variantList =  listOf<Questions>(
-//            Questions(questionName = binding.editTextVariant1.text.toString()),
-//            Questions(questionName = binding.editTextVariant2.text.toString()),
-//            Questions(questionName = binding.editTextVariant3.text.toString()),
-//            Questions(questionName = binding.editTextVariant4.text.toString()),
-//        )
-//
-//        // Try to set true for corrected answers
-//        try {
-//            variantList.forEachIndexed() { index, question ->
-//                if (viewModel.selectedCorrectVariants.value!!.contains(index)) {
-//                    question.correctAnswer = true
-//                }
-//            }
-//        }catch (e: Exception) {
-//            Log.e(TAG, "variantList.forEachIndexed() not set a value $e")
-//        }
-//
-//        Log.e(TAG, "title: $test, listVar: $variantList")
-//        // Send data to Database
-//        viewModel.addNewTestWithQuestions(test = test, questions = variantList)
-//
-
-//        clearFragment()
-    }
-
-    private fun clearFragment() {
-        listOfAllEdits.forEach {
-            it.text.clear()
+    private fun listeners(){
+        binding.edTitle.addTextChangedListener {
+            val title = binding.edTitle.text.toString()
+//            viewModel.onEvent(EditTestFormEvents.TitleChanged(title))
         }
-        viewModel.clearCorrectVariants()
+        listEditVariant.forEachIndexed { index, editText ->
+            editText.addTextChangedListener {
+//                viewModel.onEvent(EditTestFormEvents.VariantChanged(editText.text.toString(), index))
+            }
+        }
+        listInputLayouts.forEachIndexed { index, textInputLayout ->
+            textInputLayout.setEndIconOnClickListener {
+                Log.e(TAG, "setEndIconOnClickListener: $index")
+                viewModel.onEvent(EditTestFormEvents.CheckChanged(index))
+            }
+        }
+        binding.btnAdd.setOnClickListener {
+
+        }
+        binding.btnClose.setOnClickListener {
+            viewModel.onEvent(EditTestFormEvents.Cancel)
+        }
     }
 
-    private fun onClickClose() {
-        parentFragmentManager.popBackStack()
+    fun onClickCheck(index: Int) {
+
     }
 
     override fun onDestroy() {
-        APP.binding.pager.visibility = View.VISIBLE // show pager
         viewModelEditList.clearTestForEdit()
+        APP.binding.pager.visibility = View.VISIBLE // show pager
         Log.e(TAG, "EditTest onDestroy: ${viewModelEditList.selectedTestsList}")
         super.onDestroy()
     }
-
 }
+
+//
+//    private fun init(){
+//        stateViewControllers() // Control and save interface statement
+//        setValuesFromExternal() // set incoming data to interface !After statements controllers
+//        listeners()
+//    }
+//
+//    private fun stateViewControllers(){
+//        listEditVariant = listOf<EditText>(
+//            binding.editTextVariant1,
+//            binding.editTextVariant2,
+//            binding.editTextVariant3,
+//            binding.editTextVariant4,
+//        )
+//
+//        listOfAllEdits = ArrayList(listEditVariant)
+//        listOfAllEdits.add(binding.edTitle)
+//    }
+//
+//    private fun setValuesFromExternal(){
+//        val currentTest = viewModelEditList.testForEdit.value
+//        Log.e(TAG, "EditTestFragment created")
+//        Log.e(TAG, "Come to EditTest $currentTest")
+//        if (currentTest != null) {
+//            // If we edit incoming data
+//            viewModel.setCurrentTest(currentTest)
+////            drawCurrentTest(currentTest)
+//        } else {
+//            // if add new data
+//            viewModel.setViewStateForAdd(listEditVariant.size)
+//        }
+//        drawCurrentTest()
+//    }
+//
+//    private fun listeners(){
+//
+//        binding.btnAdd.setOnClickListener {
+//            onClickAdd()
+//        }
+//
+//        binding.btnClose.setOnClickListener {
+//            onClickClose()
+//        }
+//
+//        listInputLayouts = listOf(
+//            binding.textInputLayout1,
+//            binding.textInputLayout2,
+//            binding.textInputLayout3,
+//            binding.textInputLayout4,
+//        )
+//        listInputLayouts.forEachIndexed {
+//                index, inputLayout ->
+//            inputLayout.setEndIconOnClickListener {
+//                onClickVariant(index)
+//            }
+//        }
+//
+//        listEditVariant.forEachIndexed() { index, text ->
+//            text.addTextChangedListener {
+//                viewModel.setTextToVariants(index, it.toString())
+//            }
+//        }
+//    }
+//
+//    private fun drawCurrentTest(){
+//        viewModel.id.observe(viewLifecycleOwner){ binding.tvId.text = it.toString()}
+//        viewModel.title.observe(viewLifecycleOwner){ binding.edTitle.setText(it)}
+//
+//        viewModel.variantList.observe(viewLifecycleOwner) { variantList->
+//            Log.e(TAG, "drawCurrentTest variantList: $variantList")
+//            if (variantList.isNotEmpty()) {
+//                variantList.forEachIndexed { index, variant ->
+//                    viewModelEditList.testForEdit.value?.let {
+//                        listEditVariant[variant.position].setText(variant.question.questionName)
+//                    }
+//                    setTextInputLayoutCheck(listInputLayouts[variant.position], variant.question.correctAnswer)
+//                }
+//            } else {
+//                Log.e(TAG, "Error fun drawCurrentTest variantList is $variantList")
+//            }
+//        }
+//    }
+//
+//    private fun setTextInputLayoutCheck(inputLayout: TextInputLayout, state: Boolean){
+//        val checked = context?.getColorStateList(R.color.yellow)
+//        val unchecked = context?.getColorStateList(R.color.gray_50)
+//
+//        if (state) {inputLayout.setEndIconTintList(checked)
+//        } else {inputLayout.setEndIconTintList(unchecked)}
+//    }
+//
+//    private fun onClickVariant(position: Int){
+//        Log.e(TAG, "onClickVariant: $position")
+//        viewModel.setCorrectAnswer(position)
+//    }
+//
+//    private fun onClickAdd(){
+//        val testId: String = binding.tvId.text.toString()
+//        val testName: String = binding.edTitle.text.toString()
+//        val variantList: List<String> = listEditVariant.map { it.text.toString() }
+//
+//        viewModel.preparingDataForSending(testId, testName, variantList)
+//
+//        onClickClose()
+//    }
+//
+//    private fun clearFragment() {
+//        listOfAllEdits.forEach {
+//            it.text.clear()
+//        }
+//        binding.tvId.text = ""
+//        viewModel.clearCorrectVariants()
+//    }
+//
+//    private fun onClickClose() {
+//        parentFragmentManager.popBackStack()
+//    }
+//
+//    override fun onDestroy() {
+//        APP.binding.pager.visibility = View.VISIBLE // show pager
+//        viewModelEditList.clearTestForEdit()
+//        Log.e(TAG, "EditTest onDestroy: ${viewModelEditList.selectedTestsList}")
+//        super.onDestroy()
+//    }
+//
+//}

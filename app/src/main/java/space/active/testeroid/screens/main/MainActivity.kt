@@ -1,16 +1,18 @@
-package space.active.testeroid
+package space.active.testeroid.screens.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
+import space.active.testeroid.APP
+import space.active.testeroid.R
 import space.active.testeroid.adapter.PageAdapter
 import space.active.testeroid.databinding.ActivityMainBinding
-import space.active.testeroid.screens.MainActivityViewModelFactory
-import space.active.testeroid.screens.MainActivityViewModel
 import space.active.testeroid.screens.useredit.UserEditViewModel
 import space.active.testeroid.screens.useredit.UserEditViewModelFactory
+
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -53,8 +55,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init(){
-
-
         //inflate from adapter
         binding.pager.adapter = PageAdapter(this.supportFragmentManager, lifecycle)
 
@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity() {
                 3 -> tab.setIcon(R.drawable.ic_baseline_star_24)
             }
         }.attach()
-
         // set icons for tabs end
 
         // Bottom visible state
@@ -105,9 +104,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    var lastPress: Long = 0
     override fun onBackPressed() {
-        val navHostFragment = supportFragmentManager
-        viewModelUserEdit
-        super.onBackPressed()
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPress > 5000 && binding.pager.visibility == View.VISIBLE) {
+            Toast.makeText(baseContext, getString(R.string.main_exit_toast), Toast.LENGTH_LONG).show()
+            lastPress = currentTime
+        } else {
+            super.onBackPressed()
+        }
     }
 }
