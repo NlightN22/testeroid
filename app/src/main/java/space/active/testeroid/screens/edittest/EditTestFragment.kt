@@ -9,7 +9,10 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -67,9 +70,11 @@ class EditTestFragment : Fragment() {
 
     private fun externalData() {
         sharedViewModel.testForEdit.value?.let { testId ->
+            lifecycleScope.launchWhenResumed {
             Log.e(TAG, "private fun externalData() sharedViewModel.testForEdit")
             viewModel.uiState(EditTestViewModel.EditTestUiState.ShowIncome(testId))
             sharedViewModel.clearTestForEdit()
+            }
         }
     }
 
@@ -92,6 +97,18 @@ class EditTestFragment : Fragment() {
 
         viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
             Log.e(TAG, "viewModel.uiState.observe: $uiState")
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.uiEvent.collectLatest { validationResult->
+                validationResult.errorMessage?.let { msg ->
+                    Snackbar.make(
+                        binding.root,
+                        getString(msg),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
     }
 
@@ -133,8 +150,7 @@ class EditTestFragment : Fragment() {
             }
         }
         binding.btnAdd.setOnClickListener {
-            viewModel.insertTest()
-            viewModel.uiState(EditTestViewModel.EditTestUiState.ShowNew)
+            viewModel.onEvent(EditTestFormEvents.Submit)
         }
         binding.btnClose.setOnClickListener {
             viewModel.onEvent(EditTestFormEvents.Cancel)

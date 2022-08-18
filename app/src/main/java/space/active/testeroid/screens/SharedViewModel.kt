@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import space.active.testeroid.TAG
 
+// Owner must be Main application
 class SharedViewModel: ViewModel() {
     // EditTestList -> EditTest
     private val _testForEdit = MutableLiveData<Long?>()

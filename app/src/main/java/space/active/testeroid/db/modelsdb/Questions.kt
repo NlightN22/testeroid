@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Questions(
     @PrimaryKey(autoGenerate = true)
-    val questionId: Long = 0,
+    var questionId: Long = 0,
     @ColumnInfo
     var testIdMain: Long = 0,
     @ColumnInfo

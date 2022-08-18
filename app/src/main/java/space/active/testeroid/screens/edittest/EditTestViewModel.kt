@@ -21,9 +21,13 @@ class EditTestViewModel(
     private val _formState = MutableLiveData<EditTestFormState>(EditTestFormState())
     val formState: LiveData<EditTestFormState> = _formState
 
+    private val _uiEvent = MutableSharedFlow<ValidationResult>()
+    val uiEvent: SharedFlow<ValidationResult> = _uiEvent
+
     fun onEvent(event: EditTestFormEvents) {
         when(event) {
             is EditTestFormEvents.TitleChanged -> {
+                Log.e(TAG, "TitleChanged: ${event.title}")
                 _formState.value?.let { form->
                     form.title = event.title
                 }
@@ -42,9 +46,18 @@ class EditTestViewModel(
             is EditTestFormEvents.Cancel -> {
             }
             is EditTestFormEvents.Submit -> {
-                insertTest()
-                viewModelScope.launch {
-                    uiState(state = EditTestUiState.ShowNew)
+                _formState.value?.let { form ->
+                    val validate = ValidateSelected()
+                    val result = validate.valid(form.listSelected)
+                    viewModelScope.launch {
+                        _uiEvent.emit(result)
+                    }
+                    if (result.successful) {
+                        insertTest()
+                        viewModelScope.launch {
+                            uiState(state = EditTestUiState.ShowNew)
+                        }
+                    }
                 }
             }
         }
@@ -60,19 +73,25 @@ class EditTestViewModel(
             is EditTestUiState.ShowIncome -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val inputTest = repository.getTestWithQuestionsFlow(state.testId).first()
-                    _formState.value?.let { form ->
-                        form.id = inputTest.tests.testId.toString()
-                        form.title = inputTest.tests.testName
-                        inputTest.questions.forEachIndexed { index, questions ->
-                            form.listSelected[index] = questions.correctAnswer
+                    try {
+                        _formState.value?.let { form ->
+                            form.id = inputTest.tests.testId.toString()
+                            form.title = inputTest.tests.testName
+                            for (index in 0.. form.listSelected.lastIndex) {
+                                form.listSelected[index] = inputTest.questions[index].correctAnswer
+                                form.listQuestionsId[index] = inputTest.questions[index].questionId
+                            }
+                            form.variant1 = inputTest.questions[0].questionName
+                            form.variant2 = inputTest.questions[1].questionName
+                            form.variant3 = inputTest.questions[2].questionName
+                            form.variant4 = inputTest.questions[3].questionName
+                            Log.e(TAG, "in uiState _formState.value: ${form}")
                         }
-                        form.variant1 = inputTest.questions[0].questionName
-                        form.variant2 = inputTest.questions[1].questionName
-                        form.variant3 = inputTest.questions[2].questionName
-                        form.variant4 = inputTest.questions[3].questionName
+                        _formState.notifyObserver()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error in uiState EditTestUiState.ShowIncome: ${e.message}")
                     }
-                    _formState.notifyObserver()
-                }
+               }
             }
             is EditTestUiState.ShowEdited -> {}
             is EditTestUiState.Error -> {}
@@ -87,6 +106,7 @@ class EditTestViewModel(
 
             val addListVariants = listOf<String>(form.variant1, form.variant2, form.variant3, form.variant4)
             val addListSelected = form.listSelected
+            val addListQuestionId = form.listQuestionsId
             val addQuestions = List<Questions>(addListVariants.size) { Questions() }
 
             addListVariants.forEachIndexed { index, variant ->
@@ -95,7 +115,12 @@ class EditTestViewModel(
             addListSelected.forEachIndexed { index, selected ->
                 addQuestions[index].correctAnswer = selected
             }
+            addListQuestionId.forEachIndexed { index, id ->
+                addQuestions[index].questionId = id
+            }
+
             viewModelScope.launch {
+                Log.e(TAG, "insertTest $addTest, $addQuestions")
                 repository.addNewTestWithQuestions(addTest, addQuestions)
             }
         }

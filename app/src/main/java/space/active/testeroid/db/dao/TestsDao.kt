@@ -1,5 +1,6 @@
 package space.active.testeroid.db.dao
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import space.active.testeroid.db.modelsdb.Questions
@@ -7,6 +8,7 @@ import space.active.testeroid.db.modelsdb.Tests
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
 import kotlinx.coroutines.flow.Flow
+import space.active.testeroid.TAG
 
 @Dao
 interface TestsDao {
@@ -24,12 +26,11 @@ interface TestsDao {
 
     @Transaction
     suspend fun addNewTestWithQuestions(test: Tests, questions: List<Questions>) {
-
         // return ID from dao insert in Long
         val testId = insertTest(test)
-
         questions.forEach { it.testIdMain = testId }
         insertQuestion(questions)
+        Log.e(TAG, "addNewTestWithQuestions: $test $testId $questions")
     }
 
     // Add end
