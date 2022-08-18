@@ -7,25 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentEditTestBinding
-import space.active.testeroid.screens.edittestlist.EditTestListViewModel
-import space.active.testeroid.screens.edittestlist.EditTestListViewModelFactory
+import space.active.testeroid.screens.SharedViewModel
 
 class EditTestFragment : Fragment() {
     lateinit var binding: FragmentEditTestBinding
     lateinit var viewModel: EditTestViewModel
-    lateinit var viewModelEditList: EditTestListViewModel
+//    lateinit var viewModelEditList: EditTestListViewModel
+    lateinit var sharedViewModel: SharedViewModel
 
     private var listEditVariant = listOf<EditText>()
     private var listOfAllEdits = arrayListOf<EditText>()
@@ -39,8 +34,9 @@ class EditTestFragment : Fragment() {
         binding = FragmentEditTestBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(this, EditTestViewModelFactory(APP.applicationContext))
             .get(EditTestViewModel::class.java)
-        viewModelEditList = ViewModelProvider(requireActivity(), EditTestListViewModelFactory(APP.applicationContext))
-            .get(EditTestListViewModel::class.java)
+//        viewModelEditList = ViewModelProvider(requireActivity(), EditTestListViewModelFactory(APP.applicationContext))
+//            .get(EditTestListViewModel::class.java)
+        sharedViewModel = ViewModelProvider(this.requireActivity()).get(SharedViewModel::class.java)
         return binding.root
     }
 
@@ -64,29 +60,38 @@ class EditTestFragment : Fragment() {
             binding.textInputLayout3,
             binding.textInputLayout4,
         )
+        externalData()
         observers()
         listeners()
     }
 
+    private fun externalData() {
+        sharedViewModel.testForEdit.value?.let { testId ->
+            Log.e(TAG, "private fun externalData() sharedViewModel.testForEdit")
+            viewModel.uiState(EditTestViewModel.EditTestUiState.ShowIncome(testId))
+            sharedViewModel.clearTestForEdit()
+        }
+    }
+
     private fun observers() {
-        lifecycleScope.launchWhenCreated {
-            viewModelEditList.testForEdit.value?.let { testId ->
-                viewModel.uiState(EditTestViewModel.EditTestUiState.ShowIncome(testId))
-            } ?: run {
-                viewModel.uiState(EditTestViewModel.EditTestUiState.ShowNew)
+        viewModel.formState.observe(viewLifecycleOwner) { formState ->
+            binding.tvId.text = formState.id
+            binding.edTitle.setText(formState.title)
+//            listEditVariant.forEachIndexed { index, editText ->
+//                editText.setText(formState.listVariants[index])
+//            }
+            listEditVariant[0].setText(formState.variant1)
+            listEditVariant[1].setText(formState.variant2)
+            listEditVariant[2].setText(formState.variant3)
+            listEditVariant[3].setText(formState.variant4)
+            Log.e(TAG, "formState $formState")
+            listInputLayouts.forEachIndexed { index, textInputLayout ->
+                textInputLayout.check(formState.listSelected[index])
             }
         }
 
-            viewModel.formState.observe(viewLifecycleOwner) { formState ->
-                binding.tvId.text = formState.id
-                binding.edTitle.setText(formState.title)
-                listEditVariant.forEachIndexed { index, editText ->
-                    editText.setText(formState.listVariants[index])
-                }
-                Log.e(TAG, "formState $formState")
-                listInputLayouts.forEachIndexed { index, textInputLayout ->
-                    textInputLayout.check(formState.listSelected[index])
-                }
+        viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
+            Log.e(TAG, "viewModel.uiState.observe: $uiState")
         }
     }
 
@@ -94,7 +99,6 @@ class EditTestFragment : Fragment() {
         val checked = context?.getColorStateList(R.color.yellow)
         val unchecked = context?.getColorStateList(R.color.gray_50)
 
-        Log.e(TAG, "TextInputLayout.check $state")
         if (state) {this.setEndIconTintList(checked)
         } else {this.setEndIconTintList(unchecked)}
     }
@@ -102,35 +106,44 @@ class EditTestFragment : Fragment() {
     private fun listeners(){
         binding.edTitle.addTextChangedListener {
             val title = binding.edTitle.text.toString()
-//            viewModel.onEvent(EditTestFormEvents.TitleChanged(title))
+            viewModel.onEvent(EditTestFormEvents.TitleChanged(title))
         }
-        listEditVariant.forEachIndexed { index, editText ->
-            editText.addTextChangedListener {
+
+        binding.editTextVariant1.addTextChangedListener {
+            viewModel.onEvent(EditTestFormEvents.Variant1(binding.editTextVariant1.text.toString()))
+        }
+        binding.editTextVariant2.addTextChangedListener {
+            viewModel.onEvent(EditTestFormEvents.Variant2(binding.editTextVariant2.text.toString()))
+        }
+        binding.editTextVariant3.addTextChangedListener {
+            viewModel.onEvent(EditTestFormEvents.Variant3(binding.editTextVariant3.text.toString()))
+        }
+        binding.editTextVariant4.addTextChangedListener {
+            viewModel.onEvent(EditTestFormEvents.Variant4(binding.editTextVariant4.text.toString()))
+        }
+//      This is very good and simple, but not work in kotlin... LiveData always updated
+//        listEditVariant.forEachIndexed { index, editText ->
+//            editText.addTextChangedListener {
 //                viewModel.onEvent(EditTestFormEvents.VariantChanged(editText.text.toString(), index))
-            }
-        }
+//            }
+//        }
         listInputLayouts.forEachIndexed { index, textInputLayout ->
             textInputLayout.setEndIconOnClickListener {
-                Log.e(TAG, "setEndIconOnClickListener: $index")
                 viewModel.onEvent(EditTestFormEvents.CheckChanged(index))
             }
         }
         binding.btnAdd.setOnClickListener {
-
+            viewModel.insertTest()
+            viewModel.uiState(EditTestViewModel.EditTestUiState.ShowNew)
         }
         binding.btnClose.setOnClickListener {
             viewModel.onEvent(EditTestFormEvents.Cancel)
+            parentFragmentManager.popBackStack()
         }
     }
 
-    fun onClickCheck(index: Int) {
-
-    }
-
     override fun onDestroy() {
-        viewModelEditList.clearTestForEdit()
         APP.binding.pager.visibility = View.VISIBLE // show pager
-        Log.e(TAG, "EditTest onDestroy: ${viewModelEditList.selectedTestsList}")
         super.onDestroy()
     }
 }

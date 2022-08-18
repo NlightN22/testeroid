@@ -8,19 +8,16 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
-import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.db.modelsdb.Tests
+import space.active.testeroid.repository.RepositoryRealization
+import space.active.testeroid.screens.SharedViewModel
 
 class EditTestListViewModel(private val repository: RepositoryRealization): ViewModel() {
-
-    private val _testForEdit = MutableLiveData<Long?>()
-    val testForEdit: LiveData<Long?> get () = _testForEdit
 
     private val _selectedTestsList = MutableLiveData<ArrayList<Tests>>(arrayListOf()) // Important to create zero size array
     val selectedTestsList: LiveData<ArrayList<Tests>> get() = _selectedTestsList
 
     val allTests: LiveData<List<Tests>> = repository.getAllTests()
-
 
     // If you use ArrayList you need to notify observer after operations with Array
     fun <T> MutableLiveData<T>.notifyObserver() {
@@ -29,16 +26,6 @@ class EditTestListViewModel(private val repository: RepositoryRealization): View
 
     init {
         Log.e(TAG, "EditTestViewModel created")
-    }
-
-    fun setTestForEdit(testId: Long){
-        Log.e(TAG, "Set value: $testId")
-        _testForEdit.value = testId
-    }
-
-    fun clearTestForEdit(){
-        Log.e(TAG, "clearTestForEdit")
-        _testForEdit.value = null
     }
 
     fun selectListItem(testId: Long){
@@ -73,5 +60,7 @@ class EditTestListViewModel(private val repository: RepositoryRealization): View
         Log.e(TAG, "EditTestListViewModel cleared")
         super.onCleared()
     }
+
+
 
 }

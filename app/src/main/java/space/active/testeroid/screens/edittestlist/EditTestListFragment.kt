@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.recyclerview.widget.RecyclerView
 import space.active.testeroid.APP
 import space.active.testeroid.R
@@ -15,6 +16,7 @@ import space.active.testeroid.TAG
 import space.active.testeroid.adapter.RecyclerViewAdapter
 import space.active.testeroid.databinding.FragmentEditTestListBinding
 import space.active.testeroid.db.modelsdb.Tests
+import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.edittest.EditTestFragment
@@ -26,6 +28,7 @@ class EditTestListFragment : Fragment() {
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: RecyclerViewAdapter
     private lateinit var viewModel: EditTestListViewModel
+    private lateinit var sharedViewModel: SharedViewModel
     private lateinit var viewModelMain: MainActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +43,7 @@ class EditTestListFragment : Fragment() {
             MainActivityViewModelFactory(APP.applicationContext)
         )
             .get(MainActivityViewModel::class.java)
+        sharedViewModel = ViewModelProvider(this.requireActivity()).get(SharedViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -152,7 +156,7 @@ class EditTestListFragment : Fragment() {
                 val fragmentManager = parentFragmentManager
                 val newFragment = EditTestFragment()
                 // Send data to EditTest
-                viewModel.setTestForEdit(testId)
+                sharedViewModel.setTestForEdit(testId)
                 // Start new Fragment here
                 fragmentManager.commit {
                     replace(R.id.frame_main, newFragment)
