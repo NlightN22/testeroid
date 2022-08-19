@@ -81,7 +81,7 @@ class EditTestListFragment : Fragment() {
         recyclerView.adapter = adapter
 
         // Get data from View Model
-        viewModel.allTests.observe(APP) {listTest ->
+        viewModel.allTests.observe(viewLifecycleOwner) {listTest ->
             val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
             listTest.forEach { test ->
                 listAdapter.add(RecyclerViewAdapter.AdapterValues(itemName = test.testName, itemId = test.testId))
@@ -89,9 +89,9 @@ class EditTestListFragment : Fragment() {
             adapter.setList(listAdapter)
         }
 
-        viewModel.selectedTestsList.observe(APP) {
+        viewModel.selectedTestsList.observe(viewLifecycleOwner) {
             list ->
-            Log.e(TAG, "selectedTestsList $list")
+            Log.e(TAG, "viewModel.selectedTestsList.observe $list")
             if (list.size > 0) {
                 sendItemsToAdapter(list)
                 showToolBar()
@@ -128,9 +128,10 @@ class EditTestListFragment : Fragment() {
     private fun sendItemsToAdapter(list: List<Tests>) {
         val selectedList: List<Long> = list.map { it.testId }
         Log.e(TAG,"setSelected selectedList: $selectedList")
-        selectedList.forEach {
-            adapter.setSelected(it)
-        }
+        adapter.setSelected(selectedList)
+//        selectedList.forEach {
+//            adapter.setSelected(it)
+//        }
     }
 
     private fun onClickDelete(){

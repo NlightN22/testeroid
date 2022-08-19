@@ -91,7 +91,9 @@ class UserFragment : Fragment() {
         viewModel.selectedUser.observe(viewLifecycleOwner) { list ->
             Log.e(TAG, "selectedUser $list")
             if (list.size > 0) {
-                list.forEach { adapter.setSelected(it.userId) }
+                val selectedList = list.map { it.userId }
+                adapter.setSelected(selectedList)
+//                list.forEach { adapter.setSelected(it.userId) }
                 showToolBar()
             } else {
                 adapter.clearSelected()
