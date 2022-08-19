@@ -94,6 +94,7 @@
                 android:layout_weight="5"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/buttons_text_size"
+                android:backgroundTint="@color/blue"
                 />
 
             <Button
@@ -104,6 +105,7 @@
                 android:layout_weight="5"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/buttons_text_size"
+                android:backgroundTint="@color/blue"
                 />
         </LinearLayout>
 
@@ -125,6 +127,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/buttons_text_size"
                 android:text="empty"
+                android:backgroundTint="@color/blue"
                 />
 
             <Button
@@ -135,6 +138,7 @@
                 android:layout_weight="5"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/buttons_text_size"
+                android:backgroundTint="@color/blue"
                 />
 
         </LinearLayout>

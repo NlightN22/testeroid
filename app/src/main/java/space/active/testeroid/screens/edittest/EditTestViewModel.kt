@@ -126,7 +126,7 @@ class EditTestViewModel(
         }
     }
 
-        // If you use ArrayList you need to notify observer after operations with Array
+        // If you use Collections you need to notify observer after operations with Array
     fun <T> MutableLiveData<T>.notifyObserver() {
         this.postValue(this.value)
     }

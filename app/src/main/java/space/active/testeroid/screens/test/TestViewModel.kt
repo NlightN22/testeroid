@@ -1,63 +1,115 @@
 package space.active.testeroid.screens.test
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import space.active.testeroid.TAG
-import space.active.testeroid.db.modelsdb.Questions
-import space.active.testeroid.db.modelsdb.Tests
+import androidx.lifecycle.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.db.relations.TestWithQuestions
 
 class TestViewModel(
-    private val repository: RepositoryRealization
+    repository: RepositoryRealization
 ): ViewModel() {
-
-    private val _currentTest = MutableLiveData<TestWithQuestions>()
-    val currentTest: LiveData<TestWithQuestions> = _currentTest
-
 
     val testsWithQuestions: LiveData<List<TestWithQuestions>> =
         repository.allTestsWithQuestions()
 
-    val testsSize: LiveData<Int> =
-        Transformations.map(testsWithQuestions) {
-        it.size
+    private val _currentList = MutableLiveData<List<TestWithQuestions>>()
+    val currentList: LiveData<List<TestWithQuestions>> = _currentList
+
+    private val _currentTest = MutableLiveData<TestWithQuestions>()
+    val currentTest: LiveData<TestWithQuestions> = _currentTest
+
+    private val _formState = MutableLiveData<TestFormState>(TestFormState())
+    val formState: LiveData<TestFormState> = _formState
+
+    private val _ui = MutableLiveData<TestUiState>()
+    val ui: LiveData<TestUiState> = _ui
+
+    fun onEvent(events: TestFormEvents){
+        when(events){
+            is TestFormEvents.Variant1 -> {uiState(TestUiState.ShowCorrect(0))}
+            is TestFormEvents.Variant2 -> {uiState(TestUiState.ShowCorrect(1))}
+            is TestFormEvents.Variant3 -> {uiState(TestUiState.ShowCorrect(2))}
+            is TestFormEvents.Variant4 -> {uiState(TestUiState.ShowCorrect(3))}
         }
-
-    private val _currentTestIndex = MutableLiveData<Int>(1)
-    val currentTestIndex: LiveData<Int> = _currentTestIndex
-
-    val emptyTest = TestWithQuestions (Tests(),listOf(Questions(),Questions(),Questions(),Questions()))
-
-    init {
-        setNextTest(listOf(), emptyTest)
     }
 
-    fun setNextTest(list: List<TestWithQuestions>,
-                    currentTest: TestWithQuestions)
-    {
-        if (list.isNotEmpty()){
-            val currentIndex = list.indexOf(currentTest)
-            if (currentIndex < list.lastIndex){
-                _currentTest.value = list[currentIndex+1]
-                _currentTestIndex.value = currentIndex + 2
-            }else {
-                _currentTest.value = currentTest
-                _currentTestIndex.value = currentIndex + 1
+    private fun isCorrectAnswer(position: Int): AnswerColor {
+        _currentTest.value?.let { test->
+            if (test.questions[position].correctAnswer) {
+                return AnswerColor.Ok
             }
-
-        }else if (list.isEmpty()) {
-            _currentTest.value = emptyTest
-            _currentTestIndex.value = 1
         }
-        Log.e(TAG, "setNextTest ${_currentTest.value?.tests?.testId} ")
+        return AnswerColor.NotOk
     }
 
-    fun setCurrentTest(currentTest: TestWithQuestions) {
-        _currentTest.value = currentTest
+    fun uiState(state: TestUiState) {
+        when (state) {
+            is TestUiState.ShowFirst -> {
+                if (state.listTests.isNotEmpty()) {
+                    _currentList.value = state.listTests
+                    val firstTest = state.listTests[0]
+                    _currentTest.value = firstTest
+                    val size: Int = state.listTests.size
+                    val count = 0
+                    setForm(size, count)
+                } else {
+                    uiState(TestUiState.ShowEmpty)
+                }
+            }
+            is TestUiState.ShowNext -> {
+                _formState.value?.let { form->
+                    form.correctList.fill(AnswerColor.Neutral)
+                    _currentList.value?.let { list ->
+                        val countNull = form.count.toIntOrNull()
+                        countNull?.let { count ->
+                            if (count == list.lastIndex) {
+                                uiState(TestUiState.Final)
+                            } else {
+                                val index = count + 1
+                                _currentTest.value = list[index]
+                                setForm(list.size, index)
+
+                            }
+                        }
+                    }
+                    _formState.notifyObserver()
+                }
+            }
+            is TestUiState.ShowCorrect -> {
+                _formState.value?.let { form->
+                    form.correctList[state.position] = isCorrectAnswer(state.position)
+                    _formState.notifyObserver()
+                }
+                viewModelScope.launch {
+                    delay(1000L)
+                    uiState(TestUiState.ShowNext)
+                }
+            }
+            is TestUiState.Final -> {}
+            is TestUiState.ShowEmpty -> {
+                _formState.value = TestFormState()
+            }
+        }
     }
 
+    private fun setForm(size: Int, count: Int) {
+        _formState.value?.let { form ->
+            _currentTest.value?.let { current ->
+                form.id = current.tests.testId.toString()
+                form.count = count.toString()
+                form.title = current.tests.testName
+                form.size = size.toString()
+                form.variant1 = current.questions[0].questionName
+                form.variant2 = current.questions[1].questionName
+                form.variant3 = current.questions[2].questionName
+                form.variant4 = current.questions[3].questionName
+            }
+        }
+        _formState.notifyObserver()
+    }
+
+    private fun <T> MutableLiveData<T>.notifyObserver() {
+        this.postValue(this.value)
+    }
 }

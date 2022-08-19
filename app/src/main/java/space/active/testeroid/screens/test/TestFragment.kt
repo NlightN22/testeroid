@@ -9,18 +9,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import space.active.testeroid.APP
+import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentTestBinding
-import space.active.testeroid.db.relations.TestWithQuestions
 
 class TestFragment : Fragment() {
     lateinit var binding: FragmentTestBinding
     lateinit var viewModel: TestViewModel
 
     lateinit var listButtons: List<Button>
-
-    private var listTestWithQuestions = listOf<TestWithQuestions>()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,65 +41,56 @@ class TestFragment : Fragment() {
     }
 
     private fun init(){
-
-        Log.e(TAG, "TestFragment end initialization")
-
         listButtons = listOf(
             binding.button1Test,
             binding.button2Test,
             binding.button3Test,
             binding.button4Test,
         )
+        externalData()
+        observers()
+        listeners()
+        Log.e(TAG, "TestFragment end initialization")
+    }
 
-        listButtons.forEach {
-            it.setOnClickListener {nextTest()}
+    private fun externalData(){
+        viewModel.testsWithQuestions.observe(viewLifecycleOwner){ list->
+            viewModel.uiState(TestUiState.ShowFirst(list))
         }
-
-        viewModel.testsSize.observe(viewLifecycleOwner){
-            Log.e(TAG, "testsSize: $it")
-        }
-
-        viewModel.testsWithQuestions.observe(viewLifecycleOwner){
-            list ->
-            listTestWithQuestions = list
-            Log.e(TAG, "testsWithQuestions set: $listTestWithQuestions")
-            try {
-                if (list.isNotEmpty()) {
-                    val currentIndex = 0 // if list is updated - start from 0
-                    val currentTest = list[currentIndex]
-                    viewModel.setCurrentTest(currentTest)
-                    updateTest(currentTest)}
-            } catch (e: Exception) {
-                Log.e(TAG, "Error - can't update test. ${e.message}")
+    }
+    private fun observers() {
+        viewModel.formState.observe(viewLifecycleOwner){ form->
+            binding.tvIdTest.text = form.id
+            binding.tvTestCount.text = form.count
+            binding.tvTestSize.text = form.size
+            binding.tvTitleTest.text = form.title
+            binding.button1Test.text = form.variant1
+            binding.button2Test.text = form.variant2
+            binding.button3Test.text = form.variant3
+            binding.button4Test.text = form.variant4
+            listButtons.forEachIndexed { index, button ->
+                button.correct(form.correctList[index])
             }
-        }
-
-        viewModel.currentTest.observe(viewLifecycleOwner){
-            updateTest(it)
-        }
-
-        viewModel.currentTestIndex.observe(viewLifecycleOwner){
-            binding.tvTestCount.text = it.toString()
+            // TODO add score
         }
 
     }
-
-    fun updateTest(currentTest: TestWithQuestions){
-        Log.e(TAG, "updateTest: $currentTest")
-        binding.tvIdTest.text = currentTest.tests.testId.toString()
-        binding.tvTitleTest.text = currentTest.tests.testName
-        binding.button1Test.text = currentTest.questions[0].questionName
-        binding.button2Test.text = currentTest.questions[1].questionName
-        binding.button3Test.text = currentTest.questions[2].questionName
-        binding.button4Test.text = currentTest.questions[3].questionName
+    private fun Button.correct(value: AnswerColor) {
+        val correct = context?.getColorStateList(R.color.green)
+        val notCorrect = context?.getColorStateList(R.color.dark_red)
+        val neutral = context?.getColorStateList(R.color.dark_blue)
+        when (value) {
+            AnswerColor.Ok -> {this.backgroundTintList = correct}
+            AnswerColor.NotOk -> {this.backgroundTintList = notCorrect}
+            else -> {this.backgroundTintList = neutral}
+        }
     }
 
-    fun nextTest(){
-        viewModel.currentTest.value?.let {currentTest ->
-            viewModel.testsWithQuestions.value?.let { list ->
-                viewModel.setNextTest(list , currentTest)
-            }
-        }
+    private fun listeners() {
+        binding.button1Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant1) }
+        binding.button2Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant2) }
+        binding.button3Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant3) }
+        binding.button4Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant4) }
     }
 }
 
