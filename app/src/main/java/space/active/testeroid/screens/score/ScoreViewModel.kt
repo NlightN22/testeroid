@@ -54,11 +54,11 @@ class ScoreViewModel(
                 viewModelScope.launch {
                     _formState.value?.let { form ->
                         val correct = dataStore.correctScore.first()
-                        correct?.let {
+                        correct.let {
                             form.correctScore = it.toString()
                         }
                         val notCorrect = dataStore.notCorrectScore.first()
-                        notCorrect?.let {
+                        notCorrect.let {
                             form.notCorrectScore = it.toString()
                         }
                     }

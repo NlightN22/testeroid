@@ -64,7 +64,7 @@ class TestViewModel(
     }
 
     private fun isCorrectAnswer(position: Int): AnswerColor {
-        _currentTest?.let { test->
+        _currentTest.let { test->
             if (test.questions[position].correctAnswer) {
                 countingScore(true)
                 return AnswerColor.Ok
@@ -99,7 +99,7 @@ class TestViewModel(
             is TestUiState.ShowNext -> {
                 updateVariants()
                 _formState.value?.let { form->
-                    _currentList?.let { list ->
+                    _currentList.let { list ->
                         if (_count >= list.lastIndex) {
                             Log.e(TAG,"Finish")
                             uiState(TestUiState.Final)
@@ -197,7 +197,7 @@ class TestViewModel(
 
     private fun setForm() {
         _formState.value?.let { form ->
-            _currentTest?.let { current ->
+            _currentTest.let { current ->
                 form.id = current.tests.testId.toString()
                 form.count = (_count+1).toString()
                 form.title = UiText.DynamicString(current.tests.testName)

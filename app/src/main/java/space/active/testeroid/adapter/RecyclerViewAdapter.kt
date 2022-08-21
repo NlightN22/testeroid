@@ -72,7 +72,7 @@ class RecyclerViewAdapter(
 
     fun setSelected(listSelectedItemId: List<Long>){
         listItems.forEach { item->
-            if (listSelectedItemId.any() {selected -> item.itemId == selected}) {
+            if (listSelectedItemId.any { selected -> item.itemId == selected}) {
                 item.selected = true
                 notifyItemChanged(item.position)
             } else {
