@@ -11,5 +11,5 @@ data class TestWithQuestions (
         parentColumn = "testId",
         entityColumn = "testIdMain"
     )
-    val questions: List<Questions>
+    var questions: List<Questions>
 )

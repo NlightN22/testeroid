@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import space.active.testeroid.DATA_BASE_NAME
 import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.helpers.SingleLiveEvent
+import space.active.testeroid.helpers.notifyObserver
 
 class MainActivityViewModel(private val repository: RepositoryRealization): ViewModel() {
 
@@ -46,10 +47,6 @@ class MainActivityViewModel(private val repository: RepositoryRealization): View
                 bottomItemsVisibility.notifyObserver()
             }
         }
-    }
-
-    fun <T> MutableLiveData<T>.notifyObserver() {
-        this.postValue(this.value)
     }
 
     fun addOnClick (){

@@ -1,6 +1,7 @@
 package space.active.testeroid.screens.user
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import space.active.testeroid.APP
@@ -17,6 +19,9 @@ import space.active.testeroid.TAG
 import space.active.testeroid.adapter.RecyclerViewAdapter
 import space.active.testeroid.databinding.EditTextInputPasswordBinding
 import space.active.testeroid.databinding.FragmentUserBinding
+import space.active.testeroid.db.TestsDatabase
+import space.active.testeroid.repository.DataStoreRepository
+import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.useredit.UserEditFragment
@@ -94,10 +99,10 @@ class UserFragment : Fragment() {
                 val selectedList = list.map { it.userId }
                 adapter.setSelected(selectedList)
 //                list.forEach { adapter.setSelected(it.userId) }
-                showToolBar()
+//                showToolBar()
             } else {
                 adapter.clearSelected()
-                closeToolBar()
+//                closeToolBar()
             }
         }
     }
@@ -122,7 +127,7 @@ class UserFragment : Fragment() {
     }
 
     private fun onItemLongClick(userId: Long){
-//        viewModel.selectUserListItem(userId)
+        viewModel.selectUserListItem(userId)
     }
 
     private fun onAddClick(){
@@ -140,10 +145,10 @@ class UserFragment : Fragment() {
                 inputPasswordDialog(userName)
             }
             viewModel.passwordCheckResult.observe(viewLifecycleOwner) { result ->
-                if (result == UserViewModel.CheckState.ok) {
+                if (result == UserViewModel.CheckState.Ok) {
                     openFragment(UserEditFragment())
                 }
-                else if (result == UserViewModel.CheckState.notOk) {
+                else if (result == UserViewModel.CheckState.NotOk) {
                     toastMessage(getString(R.string.user_toast_wrong_password))
                 }
             }
@@ -196,4 +201,16 @@ class UserFragment : Fragment() {
     private fun toastMessage(message: String){
         Toast.makeText(this.requireContext(), message, Toast.LENGTH_SHORT).show()
     }
+}
+
+class UserViewModelFactory(context: Context): ViewModelProvider.Factory {
+
+    private val dao = TestsDatabase.getInstance(context).testsDao
+    private val repository: RepositoryRealization = RepositoryRealization(dao)
+    private val dataStore: DataStoreRepository = DataStoreRepository(context)
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return UserViewModel(repository, dataStore) as T
+    }
+
 }

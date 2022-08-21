@@ -5,6 +5,6 @@ import space.active.testeroid.screens.main.MainActivity
 const val TAG = "TestLog"
 const val NUMBER_OF_PAGES = 4
 const val DATA_BASE_NAME = "tests_db"
-const val KEY_FOR_SEND_DATA_TO_EDIT = "test"
+const val DATA_STORE_NAME = "TesteroidPreference"
 
 lateinit var APP: MainActivity

@@ -3,15 +3,17 @@ package space.active.testeroid.screens.test
 data class TestFormState (
     var id: String = "",
     var title: String = "",
-    val correctList: ArrayList<AnswerColor> = List (4) { AnswerColor.Neutral } as ArrayList<AnswerColor>,
-    var variant1: String = "",
-    var variant2: String = "",
-    var variant3: String = "",
-    var variant4: String = "",
+    var variants: ArrayList<VariantState> = List(4) {VariantState()} as ArrayList<VariantState>,
     var count: String = "",
     var size: String = "",
     var score: String = "",
 )
+
+data class VariantState (
+    var text: String = "",
+    var enabled: Boolean = true,
+    var correct: AnswerColor = AnswerColor.Neutral
+        )
 
 enum class AnswerColor {
     Ok, NotOk, Neutral

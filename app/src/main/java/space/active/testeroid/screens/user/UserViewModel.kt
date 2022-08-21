@@ -7,9 +7,14 @@ import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.SingleLiveEvent
+import space.active.testeroid.helpers.notifyObserver
+import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.RepositoryRealization
 
-class UserViewModel(private val repository: RepositoryRealization): ViewModel() {
+class UserViewModel(
+    private val repository: RepositoryRealization,
+    private val dataStore: DataStoreRepository
+    ): ViewModel() {
 
     val userList: LiveData<List<Users>> = repository.allUsers()
 
@@ -25,10 +30,6 @@ class UserViewModel(private val repository: RepositoryRealization): ViewModel() 
     private val _passwordCheckResult = SingleLiveEvent<CheckState>()
     val passwordCheckResult: LiveData<CheckState> = _passwordCheckResult
 
-    fun <T> MutableLiveData<T>.notifyObserver() {
-        this.postValue(this.value)
-    }
-
     fun setUserForEdit(userId: Long){
         // Coroutines with start another fragment or activity not work.
         // Need to prepare values for sending
@@ -40,9 +41,9 @@ class UserViewModel(private val repository: RepositoryRealization): ViewModel() 
             Log.e(TAG, "setUserForEdit postValue: ${_userForEdit.value}")
             if (user.userPassword.isNotEmpty()) {
                 _passwordDialogEvent.postValue(user.userName)
-                _passwordCheckResult.postValue(CheckState.needPassword)
+                _passwordCheckResult.postValue(CheckState.NeedPassword)
             }else if (user.userPassword.isEmpty()) {
-                _passwordCheckResult.postValue(CheckState.ok)
+                _passwordCheckResult.postValue(CheckState.Ok)
             }
         }
     }
@@ -51,9 +52,9 @@ class UserViewModel(private val repository: RepositoryRealization): ViewModel() 
         Log.e(TAG, "fun checkUserPassword $password")
         _userForEdit.value?.let { user ->
             if (user.userPassword == password) {
-                _passwordCheckResult.value = CheckState.ok
+                _passwordCheckResult.value = CheckState.Ok
             } else {
-                _passwordCheckResult.value = CheckState.notOk
+                _passwordCheckResult.value = CheckState.NotOk
             }
         }
     }
@@ -61,17 +62,20 @@ class UserViewModel(private val repository: RepositoryRealization): ViewModel() 
     fun selectUserListItem(userId: Long){
         viewModelScope.launch(Dispatchers.IO) {
             val user = repository.getUser(userId)
-            _selectedUser.value?.let { list ->
-                if (list.contains(user)) {
-                    list.remove(user)
-                } else {
-                    list.add(user)
-                }
-                _selectedUser.notifyObserver()
-            }?: run {
-                Log.e(TAG, "Error fun selectUserListItem _selectedUser.value is ${_selectedUser.value}")
-            }
+            _selectedUser.postValue(arrayListOf(user))
+            dataStore.saveUserId(userId)
+//            _selectedUser.value?.let { list ->
+//                if (list.contains(user)) {
+//                    list.remove(user)
+//                } else {
+//                    list.add(user)
+//                }
+//            _selectedUser.notifyObserver()
+//            }?: run {
+//                Log.e(TAG, "Error fun selectUserListItem _selectedUser.value is ${_selectedUser.value}")
+//            }
         }
+        _selectedUser.notifyObserver()
     }
 
     fun clearUserForEdit(){
@@ -84,7 +88,5 @@ class UserViewModel(private val repository: RepositoryRealization): ViewModel() 
         super.onCleared()
     }
 
-enum class CheckState{ok, notOk, needPassword}
-enum class EditState {Edit, Add}
-
+enum class CheckState{Ok, NotOk, NeedPassword}
 }

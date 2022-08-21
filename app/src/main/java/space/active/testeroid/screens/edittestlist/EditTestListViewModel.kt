@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Tests
+import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.screens.SharedViewModel
 
@@ -18,11 +19,6 @@ class EditTestListViewModel(private val repository: RepositoryRealization): View
     val selectedTestsList: LiveData<ArrayList<Tests>> get() = _selectedTestsList
 
     val allTests: LiveData<List<Tests>> = repository.getAllTests()
-
-    // If you use ArrayList you need to notify observer after operations with Array
-    fun <T> MutableLiveData<T>.notifyObserver() {
-        this.postValue(this.value)
-    }
 
     init {
         Log.e(TAG, "EditTestViewModel created")

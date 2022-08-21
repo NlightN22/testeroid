@@ -57,4 +57,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     // To use Kotlin annotation processing tool (kapt)
     kapt("androidx.room:room-compiler:$roomVersion")
+
+    //Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+//    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 }

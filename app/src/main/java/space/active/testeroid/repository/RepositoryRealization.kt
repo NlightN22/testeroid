@@ -1,6 +1,7 @@
 package space.active.testeroid.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import space.active.testeroid.db.dao.TestsDao
 import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
@@ -22,8 +23,7 @@ class RepositoryRealization(private val dao: TestsDao): Repository {
     }
 
     override suspend fun getUserScore(userId: Long): Int {
-        return dao.getUser(userId).score
-//        (dao.getUser(userId).value?.let { it.score } ?: 0) as LiveData<Int>
+        return getUser(userId).score
     }
 
     override suspend fun deleteUser(user: Users) {

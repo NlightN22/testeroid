@@ -1,18 +1,26 @@
 package space.active.testeroid.screens.main
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import space.active.testeroid.APP
+import space.active.testeroid.DATA_STORE_NAME
 import space.active.testeroid.R
 import space.active.testeroid.adapter.PageAdapter
 import space.active.testeroid.databinding.ActivityMainBinding
 import space.active.testeroid.screens.useredit.UserEditViewModel
 import space.active.testeroid.screens.useredit.UserEditViewModelFactory
 
+
+// At the top level of your kotlin file for the one instance of DataStore
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DATA_STORE_NAME)
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding

@@ -37,8 +37,6 @@ class EditTestFragment : Fragment() {
         binding = FragmentEditTestBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(this, EditTestViewModelFactory(APP.applicationContext))
             .get(EditTestViewModel::class.java)
-//        viewModelEditList = ViewModelProvider(requireActivity(), EditTestListViewModelFactory(APP.applicationContext))
-//            .get(EditTestListViewModel::class.java)
         sharedViewModel = ViewModelProvider(this.requireActivity()).get(SharedViewModel::class.java)
         return binding.root
     }

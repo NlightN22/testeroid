@@ -61,15 +61,13 @@ class TestFragment : Fragment() {
     private fun observers() {
         viewModel.formState.observe(viewLifecycleOwner){ form->
             binding.tvIdTest.text = form.id
-            binding.tvTestCount.text = form.count
-            binding.tvTestSize.text = form.size
+            binding.tvTestCount.text = getString(R.string.test_count, form.count)
+            binding.tvTestSize.text = getString(R.string.test_size, form.size)
             binding.tvTitleTest.text = form.title
-            binding.button1Test.text = form.variant1
-            binding.button2Test.text = form.variant2
-            binding.button3Test.text = form.variant3
-            binding.button4Test.text = form.variant4
             listButtons.forEachIndexed { index, button ->
-                button.correct(form.correctList[index])
+                button.correct(form.variants[index].correct)
+                button.text = form.variants[index].text
+                button.isEnabled = form.variants[index].enabled
             }
             // TODO add score
         }

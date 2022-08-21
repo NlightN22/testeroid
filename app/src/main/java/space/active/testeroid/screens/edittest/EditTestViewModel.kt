@@ -9,6 +9,7 @@ import space.active.testeroid.TAG
 import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
+import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.screens.edittestlist.EditTestListViewModel
 
 class EditTestViewModel(
@@ -126,11 +127,6 @@ class EditTestViewModel(
         }
     }
 
-        // If you use Collections you need to notify observer after operations with Array
-    fun <T> MutableLiveData<T>.notifyObserver() {
-        this.postValue(this.value)
-    }
-
     sealed class EditTestUiState {
         object ShowNew : EditTestUiState()
         data class ShowIncome (val testId: Long): EditTestUiState()
@@ -151,11 +147,6 @@ class EditTestViewModel(
 //    private val _variantList =
 //        MutableLiveData<ArrayList<ViewStateEditTest.Variant>>(arrayListOf()) // Important to create zero size array
 //    val variantList: LiveData<ArrayList<ViewStateEditTest.Variant>> = _variantList
-//
-//    // If you use ArrayList you need to notify observer after operations with Array
-//    fun <T> MutableLiveData<T>.notifyObserver() {
-//        this.postValue(this.value)
-//    }
 //
 //    fun setElementsState(viewState: ViewStateEditTest) {
 //        when (viewState) {

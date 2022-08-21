@@ -1,10 +1,13 @@
 package space.active.testeroid.screens.test
 
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import space.active.testeroid.TAG
 import space.active.testeroid.repository.RepositoryRealization
 import space.active.testeroid.db.relations.TestWithQuestions
+import space.active.testeroid.helpers.notifyObserver
 
 class TestViewModel(
     repository: RepositoryRealization
@@ -13,11 +16,14 @@ class TestViewModel(
     val testsWithQuestions: LiveData<List<TestWithQuestions>> =
         repository.allTestsWithQuestions()
 
-    private val _currentList = MutableLiveData<List<TestWithQuestions>>()
-    val currentList: LiveData<List<TestWithQuestions>> = _currentList
 
-    private val _currentTest = MutableLiveData<TestWithQuestions>()
-    val currentTest: LiveData<TestWithQuestions> = _currentTest
+//    val currentList: LiveData<List<TestWithQuestions>> = _currentList
+
+    private var _currentList: List<TestWithQuestions> = listOf()
+    private lateinit var _currentTest: TestWithQuestions
+    private var _count: Int = 0
+    private var _size: Int = 0
+//    val currentTest: LiveData<TestWithQuestions> = _currentTest
 
     private val _formState = MutableLiveData<TestFormState>(TestFormState())
     val formState: LiveData<TestFormState> = _formState
@@ -35,7 +41,7 @@ class TestViewModel(
     }
 
     private fun isCorrectAnswer(position: Int): AnswerColor {
-        _currentTest.value?.let { test->
+        _currentTest?.let { test->
             if (test.questions[position].correctAnswer) {
                 return AnswerColor.Ok
             }
@@ -46,70 +52,87 @@ class TestViewModel(
     fun uiState(state: TestUiState) {
         when (state) {
             is TestUiState.ShowFirst -> {
-                if (state.listTests.isNotEmpty()) {
-                    _currentList.value = state.listTests
-                    val firstTest = state.listTests[0]
-                    _currentTest.value = firstTest
-                    val size: Int = state.listTests.size
-                    val count = 0
-                    setForm(size, count)
-                } else {
-                    uiState(TestUiState.ShowEmpty)
+                Log.e(TAG, "TestUiState.ShowFirst _currentList: $_currentList")
+                if (_currentList.isNullOrEmpty()) {
+                    if (state.listTests.isNotEmpty()) {
+                        _currentList = state.listTests
+                        _count = 0
+                        _currentTest = _currentList[_count]
+                        _currentTest.questions = _currentTest.questions.shuffled()
+                        _size = state.listTests.size
+                    } else {
+                        uiState(TestUiState.ShowEmpty)
+                    }
+                }
+                if (_currentList.isNotEmpty()) {
+                    Log.e(TAG, "TestUiState.ShowFirst _currentList isNotEmpty: $_currentList")
+                    setForm()
                 }
             }
             is TestUiState.ShowNext -> {
                 _formState.value?.let { form->
-                    form.correctList.fill(AnswerColor.Neutral)
-                    _currentList.value?.let { list ->
-                        val countNull = form.count.toIntOrNull()
-                        countNull?.let { count ->
-                            if (count == list.lastIndex) {
-                                uiState(TestUiState.Final)
-                            } else {
-                                val index = count + 1
-                                _currentTest.value = list[index]
-                                setForm(list.size, index)
-
-                            }
+                    form.variants.forEach { variant->
+                        variant.correct = AnswerColor.Neutral
+                        variant.enabled = true
+                    }
+                    _currentList?.let { list ->
+                        if (_count >= list.lastIndex) {
+                            Log.e(TAG,"Finish")
+                            uiState(TestUiState.Final)
+                        } else {
+                            _count += 1
+                            _currentTest = list[_count]
+                            _currentTest.questions = _currentTest.questions.shuffled()
+                            setForm()
                         }
                     }
                     _formState.notifyObserver()
                 }
             }
             is TestUiState.ShowCorrect -> {
-                _formState.value?.let { form->
-                    form.correctList[state.position] = isCorrectAnswer(state.position)
+                _formState.value?.let { form ->
+                    form.variants[state.position].correct =
+                        isCorrectAnswer(position = state.position)
+                    form.variants.forEach {
+                        it.enabled = false
+                    }
                     _formState.notifyObserver()
-                }
-                viewModelScope.launch {
-                    delay(1000L)
-                    uiState(TestUiState.ShowNext)
+                    viewModelScope.launch {
+                        delay(1000L)
+                            uiState(TestUiState.ShowNext)
+                    }
                 }
             }
-            is TestUiState.Final -> {}
+            is TestUiState.Restart -> {
+                _currentList = listOf()
+                uiState(TestUiState.ShowFirst(state.listTests))
+            }
+            is TestUiState.Final -> {
+                // Show score and congratulations
+                // Write score to DB user
+                _formState.value?.let { form->
+//                    form.title =
+
+                }
+            }
             is TestUiState.ShowEmpty -> {
                 _formState.value = TestFormState()
             }
         }
     }
 
-    private fun setForm(size: Int, count: Int) {
+    private fun setForm() {
         _formState.value?.let { form ->
-            _currentTest.value?.let { current ->
+            _currentTest?.let { current ->
                 form.id = current.tests.testId.toString()
-                form.count = count.toString()
+                form.count = (_count+1).toString()
                 form.title = current.tests.testName
-                form.size = size.toString()
-                form.variant1 = current.questions[0].questionName
-                form.variant2 = current.questions[1].questionName
-                form.variant3 = current.questions[2].questionName
-                form.variant4 = current.questions[3].questionName
+                form.size = _size.toString()
+                form.variants.forEachIndexed { index, variantState ->
+                    variantState.text = current.questions[index].questionName
+                }
             }
         }
         _formState.notifyObserver()
-    }
-
-    private fun <T> MutableLiveData<T>.notifyObserver() {
-        this.postValue(this.value)
     }
 }

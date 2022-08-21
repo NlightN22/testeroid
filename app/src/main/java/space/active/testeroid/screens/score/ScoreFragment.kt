@@ -1,21 +1,26 @@
 package space.active.testeroid.screens.score
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import space.active.testeroid.APP
+import androidx.lifecycle.lifecycleScope
+import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentScoreBinding
-import space.active.testeroid.screens.edittest.EditTestViewModel
-import space.active.testeroid.screens.edittest.EditTestViewModelFactory
+import space.active.testeroid.db.TestsDatabase
+import space.active.testeroid.repository.DataStoreRepository
+import space.active.testeroid.repository.RepositoryRealization
 
 class ScoreFragment : Fragment() {
     lateinit var binding: FragmentScoreBinding
-    lateinit var viewModel: EditTestViewModel
+    lateinit var viewModel: ScoreViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,8 +28,7 @@ class ScoreFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentScoreBinding.inflate(layoutInflater, container, false)
-        viewModel = ViewModelProvider(APP, EditTestViewModelFactory(APP.applicationContext)).get(
-            EditTestViewModel::class.java)
+        viewModel = ViewModelProvider(this, ScoreViewModelFactory(this.requireContext())).get(ScoreViewModel::class.java)
         return binding.root
     }
 
@@ -34,7 +38,54 @@ class ScoreFragment : Fragment() {
     }
 
     private fun init(){
+        externalData()
+        observers()
+        listeners()
         Log.e(TAG, "ScoreFragment end initialization")
+    }
+
+    private fun externalData() {
+        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+            viewModel.userIdFlow.collect() { userId ->
+                viewModel.uiState(ScoreUiState.UserScore(userId))
+            }
+        }
+    }
+
+    private fun observers() {
+        viewModel.formState.observe(viewLifecycleOwner){ form->
+            if (form.title) {
+                binding.textViewUserTitle.text = getString(R.string.score_user_title, form.username)
+            } else {
+                binding.textViewUserTitle.text = getString(R.string.score_user_empty)
+            }
+            binding.textUserScore.text = form.score
+            binding.layoutScoreParams.isVisible = form.paramsVisibility
+            binding.editTextCorrect.setText(form.correctScore)
+            binding.editTextNotCorrect.setText(form.notCorrectScore)
+        }
+    }
+
+
+    private fun listeners() {
+        binding.buttonSubmit.setOnClickListener {
+            val correct = binding.editTextCorrect.text.toString()
+            val notCorrect = binding.editTextNotCorrect.text.toString()
+
+            viewModel.onEvent(ScoreFormEvents.SubmitParams(correct, notCorrect))
+        }
+    }
+
+}
+
+class ScoreViewModelFactory(context: Context): ViewModelProvider.Factory {
+
+    private val dao = TestsDatabase.getInstance(context).testsDao
+    private val repository: RepositoryRealization = RepositoryRealization(dao)
+    private val dataStore: DataStoreRepository = DataStoreRepository(context)
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return ScoreViewModel(repository, dataStore) as T
     }
 
 }
