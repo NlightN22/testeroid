@@ -3,6 +3,7 @@ package space.active.testeroid.screens.user
 import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
@@ -18,8 +19,10 @@ class UserViewModel(
 
     val userList: LiveData<List<Users>> = repository.allUsers()
 
-    private val _selectedUser = MutableLiveData<ArrayList<Users>>(arrayListOf())
-    val selectedUser: LiveData<ArrayList<Users>> = _selectedUser
+    val selectedUser: Flow<Long?> = dataStore.userId
+
+//    private val _selectedUser = MutableLiveData<ArrayList<Users>>(arrayListOf())
+//    val selectedUser: LiveData<ArrayList<Users>> = _selectedUser
 
     private val _userForEdit = MutableLiveData<Users>()
     val userForEdit: LiveData<Users> = _userForEdit
@@ -62,7 +65,7 @@ class UserViewModel(
     fun selectUserListItem(userId: Long){
         viewModelScope.launch(Dispatchers.IO) {
             val user = repository.getUser(userId)
-            _selectedUser.postValue(arrayListOf(user))
+//            _selectedUser.postValue(arrayListOf(user))
             dataStore.saveUserId(userId)
 //            _selectedUser.value?.let { list ->
 //                if (list.contains(user)) {
@@ -75,7 +78,7 @@ class UserViewModel(
 //                Log.e(TAG, "Error fun selectUserListItem _selectedUser.value is ${_selectedUser.value}")
 //            }
         }
-        _selectedUser.notifyObserver()
+//        _selectedUser.notifyObserver()
     }
 
     fun clearUserForEdit(){

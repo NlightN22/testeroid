@@ -51,7 +51,7 @@
     <string name="bottom_menu_delete">Delete</string>
 
     <string name="main_exit_toast">Press back again to exit</string>
-
+    <string name="test_final_title">Congratulation, %s! You score is %d</string>
 
 
 </resources>

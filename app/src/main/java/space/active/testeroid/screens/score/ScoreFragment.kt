@@ -28,7 +28,10 @@ class ScoreFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentScoreBinding.inflate(layoutInflater, container, false)
-        viewModel = ViewModelProvider(this, ScoreViewModelFactory(this.requireContext())).get(ScoreViewModel::class.java)
+        viewModel = ViewModelProvider(
+            this,
+            ScoreViewModelFactory(this.requireContext()))
+            .get(ScoreViewModel::class.java)
         return binding.root
     }
 
@@ -65,7 +68,6 @@ class ScoreFragment : Fragment() {
             binding.editTextNotCorrect.setText(form.notCorrectScore)
         }
     }
-
 
     private fun listeners() {
         binding.buttonSubmit.setOnClickListener {

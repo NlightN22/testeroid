@@ -45,13 +45,13 @@ class DataStoreRepository(context: Context) {
             preference[PreferenceKeys.correctScore] = score
         }
     }
-    val correctScore: Flow<Int?> = dataStore.data
+    val correctScore: Flow<Int> = dataStore.data
         .catch { exception->
             exceptionHandling(exception)
             emit(emptyPreferences())
         }
         .map { preference ->
-            preference[PreferenceKeys.correctScore]
+            preference[PreferenceKeys.correctScore] ?: 0
         }
 
     suspend fun saveNotCorrectScore(score: Int){
@@ -60,13 +60,13 @@ class DataStoreRepository(context: Context) {
         }
     }
 
-    val notCorrectScore: Flow<Int?> = dataStore.data
+    val notCorrectScore: Flow<Int> = dataStore.data
         .catch { exception->
             exceptionHandling(exception)
             emit(emptyPreferences())
         }
         .map { preference ->
-            preference[PreferenceKeys.notCorrectScore]
+            preference[PreferenceKeys.notCorrectScore] ?: 0
         }
 
     private fun exceptionHandling(exception: Throwable){

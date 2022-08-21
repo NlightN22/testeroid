@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -93,18 +95,14 @@ class UserFragment : Fragment() {
             adapter.setList(listAdapter)
         }
 
-        viewModel.selectedUser.observe(viewLifecycleOwner) { list ->
-            Log.e(TAG, "selectedUser $list")
-            if (list.size > 0) {
-                val selectedList = list.map { it.userId }
-                adapter.setSelected(selectedList)
-//                list.forEach { adapter.setSelected(it.userId) }
-//                showToolBar()
-            } else {
-                adapter.clearSelected()
-//                closeToolBar()
+        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+            viewModel.selectedUser.collectLatest {
+                it?.let {
+                    adapter.setSelected(listOf(it))
+                }
             }
         }
+
     }
 
     private fun showToolBar(){

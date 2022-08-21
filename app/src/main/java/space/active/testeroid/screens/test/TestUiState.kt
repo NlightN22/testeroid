@@ -7,6 +7,6 @@ sealed class TestUiState {
     object ShowNext: TestUiState()
     data class ShowCorrect(val position: Int): TestUiState()
     object Final: TestUiState()
-    data class Restart(val listTests: List<TestWithQuestions>): TestUiState()
+    data class Restart(val listTests: List<TestWithQuestions>?): TestUiState()
     object ShowEmpty: TestUiState()
 }

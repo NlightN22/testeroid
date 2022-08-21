@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import space.active.testeroid.APP
 import space.active.testeroid.R
@@ -63,13 +64,13 @@ class TestFragment : Fragment() {
             binding.tvIdTest.text = form.id
             binding.tvTestCount.text = getString(R.string.test_count, form.count)
             binding.tvTestSize.text = getString(R.string.test_size, form.size)
-            binding.tvTitleTest.text = form.title
+            binding.tvTitleTest.text = form.title.asString(this.requireContext())
             listButtons.forEachIndexed { index, button ->
                 button.correct(form.variants[index].correct)
                 button.text = form.variants[index].text
                 button.isEnabled = form.variants[index].enabled
             }
-            // TODO add score
+            binding.imageViewRestart.isVisible = form.restartVisibility
         }
 
     }
@@ -89,6 +90,6 @@ class TestFragment : Fragment() {
         binding.button2Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant2) }
         binding.button3Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant3) }
         binding.button4Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant4) }
+        binding.imageViewRestart.setOnClickListener { viewModel.onEvent(TestFormEvents.Restart(viewModel.testsWithQuestions.value)) }
     }
 }
-
