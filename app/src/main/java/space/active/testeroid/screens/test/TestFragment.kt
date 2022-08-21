@@ -70,7 +70,7 @@ class TestFragment : Fragment() {
                 button.text = form.variants[index].text
                 button.isEnabled = form.variants[index].enabled
             }
-            binding.imageViewRestart.isVisible = form.restartVisibility
+            binding.textViewRestart.isVisible = form.restartVisibility
             binding.buttonSubmit.isEnabled = form.submitEnabled
         }
 
@@ -93,7 +93,7 @@ class TestFragment : Fragment() {
         binding.button2Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant2) }
         binding.button3Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant3) }
         binding.button4Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant4) }
-        binding.imageViewRestart.setOnClickListener { viewModel.onEvent(TestFormEvents.Restart(viewModel.testsWithQuestions.value)) }
+        binding.textViewRestart.setOnClickListener { viewModel.onEvent(TestFormEvents.Restart(viewModel.testsWithQuestions.value)) }
         binding.buttonSubmit.setOnClickListener { viewModel.onEvent(TestFormEvents.Submit) }
     }
 }

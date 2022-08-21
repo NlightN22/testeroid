@@ -112,32 +112,30 @@
         android:id="@+id/buttonOK"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="-20dp"
         android:text="@string/edit_user_OK"
-        app:layout_constraintEnd_toStartOf="@+id/checkBoxAdmin"
-        app:layout_constraintStart_toStartOf="@+id/text_input_layout2"
-        app:layout_constraintTop_toBottomOf="@+id/checkBoxAdmin" />
+        app:layout_constraintEnd_toStartOf="@+id/buttonCancel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/buttonCancel" />
 
     <Button
         android:id="@+id/buttonCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/edit_user_Cancel"
-        app:layout_constraintStart_toEndOf="@+id/buttonOK"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkBoxAdmin" />
 
     <Button
         android:id="@+id/buttonDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:text="@string/edit_user_Delete"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonCancel"
-        app:layout_constraintTop_toBottomOf="@+id/checkBoxAdmin" />
+        app:layout_constraintTop_toTopOf="@+id/buttonCancel" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

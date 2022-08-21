@@ -27,9 +27,13 @@
         <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/drawable/ic_baseline_refresh_24.xml" value="0.235" />
         <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/activity_main.xml" value="0.240625" />
         <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/edit_test_list_item.xml" value="0.240625" />
+        <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/edit_text_input_password.xml" value="0.22864583333333333" />
         <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/fragment_edit_test.xml" value="0.240625" />
+        <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/fragment_edit_test_list.xml" value="0.22864583333333333" />
         <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/fragment_score.xml" value="0.2734375" />
         <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/fragment_test.xml" value="0.240625" />
+        <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/fragment_user.xml" value="0.22864583333333333" />
+        <entry key="..\:/Programming/workspace/TesterOid/app/src/main/res/layout/fragment_user_edit.xml" value="0.22864583333333333" />
       </map>
     </option>
   </component>

@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".screens.test.TestFragment"
-    android:orientation="vertical"
-    >
-
-    <!-- TODO: Update blank fragment layout -->
-
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutTop"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_id_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/gray_50"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="ID" />
 
         <TextView
             android:id="@+id/tv_test_count"
@@ -34,141 +44,145 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:text="@string/test_size"
             android:textColor="@color/gray_50"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="@string/test_size" />
-
-        <TextView
-            android:id="@+id/tv_title_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="@string/buttons_temp_text"
-            android:textSize="32sp"
-            android:padding="10dp"
-            android:gravity="center"
-            android:textColor="@color/yellow"
-            android:textStyle="bold"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.30" />
-
-        <TextView
-            android:id="@+id/tv_id_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:textColor="@color/gray_50"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="ID" />
-
-        <ImageView
-            android:id="@+id/imageViewRestart"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="32dp"
-            android:src="@drawable/ic_baseline_refresh_24"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_test" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutMid"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTop"
+        app:layout_constraintBottom_toTopOf="@+id/layoutBot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:orientation="horizontal"
-            android:layout_weight="5">
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <Button
-                android:id="@+id/button1Test"
-                android:layout_width="0dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="5"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/buttons_text_size"
-                android:backgroundTint="@color/dark_blue"
-                />
+                app:layout_constraintBottom_toTopOf="@+id/button1Test"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <Button
-                android:id="@+id/button2Test"
-                android:layout_width="0dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="5"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/buttons_text_size"
-                android:backgroundTint="@color/dark_blue"
-                />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:orientation="horizontal"
-            android:layout_weight="5">
+                <TextView
+                    android:id="@+id/tv_title_test"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="@color/yellow"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/buttons_temp_text" />
 
 
-            <Button
-                android:id="@+id/button3Test"
-                android:layout_width="0dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="5"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/buttons_text_size"
-                android:text="empty"
-                android:backgroundTint="@color/dark_blue"
-                />
+                <TextView
+                    android:id="@+id/textViewRestart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:gravity="center"
+                    android:text="@string/test_restart"
+                    app:drawableTopCompat="@drawable/ic_baseline_refresh_24"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title_test" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <Button
-                android:id="@+id/button4Test"
-                android:layout_width="0dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="5"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/buttons_text_size"
-                android:backgroundTint="@color/dark_blue"
-                />
+        </ScrollView>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutBot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+<Button
+    android:id="@+id/button1Test"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_weight="5"
+    android:backgroundTint="@color/dark_blue"
+    android:textSize="@dimen/buttons_text_size"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/button2Test"
+    app:layout_constraintBottom_toTopOf="@+id/button3Test"
+    />
 
+<Button
+    android:id="@+id/button2Test"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_weight="5"
+    android:backgroundTint="@color/dark_blue"
+    android:textSize="@dimen/buttons_text_size"
+    app:layout_constraintStart_toEndOf="@+id/button1Test"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/button4Test"
+    />
 
-        </LinearLayout>
+<Button
+    android:id="@+id/button3Test"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:backgroundTint="@color/dark_blue"
+    android:textSize="@dimen/buttons_text_size"
+    android:layout_weight="5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toStartOf="@id/button4Test"
+    app:layout_constraintBottom_toTopOf="@+id/buttonSubmit"
+    />
 
-        <Button
-            android:id="@+id/buttonSubmit"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="5"
-            android:text="@string/test_submit"
-            android:textSize="@dimen/buttons_text_size"
-            android:backgroundTint="@color/dark_blue"
-            />
+<Button
+    android:id="@+id/button4Test"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:backgroundTint="@color/dark_blue"
+    android:textSize="@dimen/buttons_text_size"
+    android:layout_weight="5"
+    app:layout_constraintStart_toEndOf="@+id/button3Test"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/buttonSubmit"
+    />
 
-    </LinearLayout>
+<Button
+    android:id="@+id/buttonSubmit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:backgroundTint="@color/dark_blue"
+    android:text="@string/test_submit"
+    android:textSize="@dimen/buttons_text_size"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

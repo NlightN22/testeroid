@@ -39,8 +39,8 @@ class TestViewModel(
     private val _formState = MutableLiveData<TestFormState>(TestFormState())
     val formState: LiveData<TestFormState> = _formState
 
-    private val _ui = MutableLiveData<TestUiState>()
-    val ui: LiveData<TestUiState> = _ui
+    private var _ui: TestUiState? = null
+//    val ui: LiveData<TestUiState> = _ui
 
     fun onEvent(events: TestFormEvents){
         when(events){
@@ -92,6 +92,7 @@ class TestViewModel(
                 }
                 if (_currentList.isNotEmpty()) {
                     Log.e(TAG, "TestUiState.ShowFirst _currentList isNotEmpty: $_currentList")
+                    updateVariants()
                     setForm()
                 }
             }
@@ -153,7 +154,6 @@ class TestViewModel(
                         val scoreSum = user.score + _score
                         repository.addUser(user.copy(score = scoreSum))
                     }
-
                 }
             }
             is TestUiState.Select -> {
