@@ -66,21 +66,24 @@ class TestFragment : Fragment() {
             binding.tvTestSize.text = getString(R.string.test_size, form.size)
             binding.tvTitleTest.text = form.title.asString(this.requireContext())
             listButtons.forEachIndexed { index, button ->
-                button.correct(form.variants[index].correct)
+                button.color(form.variants[index].color)
                 button.text = form.variants[index].text
                 button.isEnabled = form.variants[index].enabled
             }
             binding.imageViewRestart.isVisible = form.restartVisibility
+            binding.buttonSubmit.isEnabled = form.submitEnabled
         }
 
     }
-    private fun Button.correct(value: AnswerColor) {
+    private fun Button.color(value: AnswerColor) {
         val correct = context?.getColorStateList(R.color.green)
         val notCorrect = context?.getColorStateList(R.color.dark_red)
         val neutral = context?.getColorStateList(R.color.dark_blue)
+        val selected = context?.getColorStateList(R.color.yellow)
         when (value) {
             AnswerColor.Ok -> {this.backgroundTintList = correct}
             AnswerColor.NotOk -> {this.backgroundTintList = notCorrect}
+            AnswerColor.Selected -> {this.backgroundTintList = selected}
             else -> {this.backgroundTintList = neutral}
         }
     }
@@ -91,5 +94,6 @@ class TestFragment : Fragment() {
         binding.button3Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant3) }
         binding.button4Test.setOnClickListener { viewModel.onEvent(TestFormEvents.Variant4) }
         binding.imageViewRestart.setOnClickListener { viewModel.onEvent(TestFormEvents.Restart(viewModel.testsWithQuestions.value)) }
+        binding.buttonSubmit.setOnClickListener { viewModel.onEvent(TestFormEvents.Submit) }
     }
 }

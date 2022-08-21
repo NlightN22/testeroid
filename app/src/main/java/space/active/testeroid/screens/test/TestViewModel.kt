@@ -44,11 +44,22 @@ class TestViewModel(
 
     fun onEvent(events: TestFormEvents){
         when(events){
-            is TestFormEvents.Variant1 -> {uiState(TestUiState.ShowCorrect(0))}
-            is TestFormEvents.Variant2 -> {uiState(TestUiState.ShowCorrect(1))}
-            is TestFormEvents.Variant3 -> {uiState(TestUiState.ShowCorrect(2))}
-            is TestFormEvents.Variant4 -> {uiState(TestUiState.ShowCorrect(3))}
+            is TestFormEvents.Variant1 -> {uiState(TestUiState.Select(0))}
+            is TestFormEvents.Variant2 -> {uiState(TestUiState.Select(1))}
+            is TestFormEvents.Variant3 -> {uiState(TestUiState.Select(2))}
+            is TestFormEvents.Variant4 -> {uiState(TestUiState.Select(3))}
+//            is TestFormEvents.Variant1 -> {uiState(TestUiState.ShowCorrect(0))}
+//            is TestFormEvents.Variant2 -> {uiState(TestUiState.ShowCorrect(1))}
+//            is TestFormEvents.Variant3 -> {uiState(TestUiState.ShowCorrect(2))}
+//            is TestFormEvents.Variant4 -> {uiState(TestUiState.ShowCorrect(3))}
             is TestFormEvents.Restart -> {uiState(TestUiState.Restart(events.listTests))}
+            is TestFormEvents.Submit -> {
+                viewModelScope.launch {
+                    uiState(TestUiState.ShowCorrect)
+                    delay(1000L)
+                    uiState(TestUiState.ShowNext)
+                }
+            }
         }
     }
 
@@ -85,6 +96,7 @@ class TestViewModel(
                 }
             }
             is TestUiState.ShowNext -> {
+                updateVariants()
                 _formState.value?.let { form->
                     _currentList?.let { list ->
                         if (_count >= list.lastIndex) {
@@ -101,28 +113,25 @@ class TestViewModel(
             }
             is TestUiState.ShowCorrect -> {
                 _formState.value?.let { form ->
-                    form.variants[state.position].correct =
-                        isCorrectAnswer(position = state.position)
-                    form.variants.forEach {
-                        it.enabled = false
+                    form.variants.forEachIndexed { index, variant ->
+                        if (variant.selected) {
+                            variant.color = isCorrectAnswer(index)
+                        }
+                        variant.enabled = false
                     }
                     _formState.notifyObserver()
-                    viewModelScope.launch {
-                        delay(1000L)
-                            uiState(TestUiState.ShowNext)
-                    }
                 }
             }
             is TestUiState.Restart -> {
                 _score = 0
                 _currentList = listOf()
                 state.listTests?.let {
+                    updateVariants()
                     uiState(TestUiState.ShowFirst(state.listTests))
                 }
             }
             is TestUiState.Final -> {
                 // Show score and congratulations
-                // Write score to DB user
                 viewModelScope.launch {
                     val userName = selectedUser.first()?.let { userId ->
                         repository.getUser(userId).userName
@@ -133,7 +142,28 @@ class TestViewModel(
                             userName,
                             _score
                         )
+                        form.variants.forEach { it.enabled = false }
                         form.restartVisibility = true
+                        form.submitEnabled = false
+                    }
+                    _formState.notifyObserver()
+                    // Write score to DB user
+                    selectedUser.first()?.let { userId ->
+                        val user = repository.getUser(userId)
+                        val scoreSum = user.score + _score
+                        repository.addUser(user.copy(score = scoreSum))
+                    }
+
+                }
+            }
+            is TestUiState.Select -> {
+                _formState.value?.let { form ->
+                    val position = form.variants[state.pos]
+                    position.selected = !position.selected
+                    if (position.selected) {
+                        position.color = AnswerColor.Selected
+                    } else {
+                        position.color = AnswerColor.Neutral
                     }
                     _formState.notifyObserver()
                 }
@@ -154,13 +184,20 @@ class TestViewModel(
         }
     }
 
+    private fun updateVariants() {
+        _formState.value?.let { form ->
+            form.variants.forEach { variant ->
+                variant.selected = false
+                variant.color = AnswerColor.Neutral
+                variant.enabled = true
+            }
+            _formState.notifyObserver()
+        }
+    }
+
     private fun setForm() {
         _formState.value?.let { form ->
             _currentTest?.let { current ->
-                form.variants.forEach { variant->
-                    variant.correct = AnswerColor.Neutral
-                    variant.enabled = true
-                }
                 form.id = current.tests.testId.toString()
                 form.count = (_count+1).toString()
                 form.title = UiText.DynamicString(current.tests.testName)
@@ -168,6 +205,7 @@ class TestViewModel(
                 form.variants.forEachIndexed { index, variantState ->
                     variantState.text = current.questions[index].questionName
                 }
+                form.submitEnabled = true
             }
         }
         _formState.notifyObserver()

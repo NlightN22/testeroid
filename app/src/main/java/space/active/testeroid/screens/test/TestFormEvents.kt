@@ -8,4 +8,5 @@ sealed class TestFormEvents {
     object Variant3: TestFormEvents()
     object Variant4: TestFormEvents()
     data class Restart(val listTests: List<TestWithQuestions>?): TestFormEvents()
+    object Submit: TestFormEvents()
 }

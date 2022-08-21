@@ -41,7 +41,7 @@
     <string name="score">Score: %d</string>
     <string name="you_scored">"You scored: %s"</string>
     <string name="test_count">%s of</string>
-    <string name="test_size">%s tests</string>
+    <string name="test_size">%s</string>
     <string name="buttons_temp_text">Every column of every table has an associated collating function.</string>
     <string name="empty_question_name">Empty</string>
     <string name="dialog_OK">OK</string>
@@ -52,6 +52,7 @@
 
     <string name="main_exit_toast">Press back again to exit</string>
     <string name="test_final_title">Congratulation, %s! You score is %d</string>
+    <string name="test_submit">Submit</string>
 
 
 </resources>

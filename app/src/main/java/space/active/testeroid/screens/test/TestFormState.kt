@@ -10,15 +10,17 @@ data class TestFormState (
     var count: String = "",
     var size: String = "",
     var score: String = "",
-    var restartVisibility: Boolean = false
+    var restartVisibility: Boolean = false,
+    var submitEnabled: Boolean = true
 )
 
 data class VariantState (
     var text: String = "",
     var enabled: Boolean = true,
-    var correct: AnswerColor = AnswerColor.Neutral
+    var color: AnswerColor = AnswerColor.Neutral,
+    var selected: Boolean = false,
         )
 
 enum class AnswerColor {
-    Ok, NotOk, Neutral
+    Ok, NotOk, Neutral, Selected
 }
