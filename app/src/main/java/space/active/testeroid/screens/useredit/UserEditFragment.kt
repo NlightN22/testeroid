@@ -9,12 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentUserEditBinding
 import space.active.testeroid.db.modelsdb.Users
+import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.user.UserViewModel
 import space.active.testeroid.screens.user.UserViewModelFactory
 
@@ -22,7 +25,9 @@ class UserEditFragment : Fragment() {
 
     lateinit var binding: FragmentUserEditBinding
     lateinit var viewModel: UserEditViewModel
-    lateinit var viewModelUser: UserViewModel
+    lateinit var sharedViewModel: SharedViewModel
+
+//    lateinit var viewModelUser: UserViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,120 +39,170 @@ class UserEditFragment : Fragment() {
             UserEditViewModelFactory(this.requireContext())
         )
             .get(UserEditViewModel::class.java)
-        viewModelUser = ViewModelProvider(requireActivity(),// Need to set MainActivity if want to share ViewModels data
-            UserViewModelFactory(this.requireContext())
-        )
-            .get(UserViewModel::class.java)
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+
+
+//        viewModelUser = ViewModelProvider(requireActivity(),// Need to set MainActivity if want to share ViewModels data
+//            UserViewModelFactory(this.requireContext())
+//        )
+//            .get(UserViewModel::class.java)
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        APP.binding.pager.visibility = View.GONE // hide pager
+//        APP.binding.pager.visibility = View.GONE // hide pager
 
         init()
     }
 
     private fun init(){
+        // TODO clear sharedviewmodel userforedit
         Log.e(TAG, "${this} created")
-        stateViewControllers() // Control and save interface statement
-        setValuesFromExternal() // set incoming data to interface !After statements controllers
-        buttonListeners()
+
+        handleExternal()
+        observers()
+        listeners()
+
+
+//        stateViewControllers() // Control and save interface statement
+//        setValuesFromExternal() // set incoming data to interface !After statements controllers
+//        buttonListeners()
     }
 
-    private fun stateViewControllers(){
-        viewModel.adminCheckBox.observe(viewLifecycleOwner){
-            binding.checkBoxAdmin.apply {
-                isChecked = it.checked
-                isEnabled = it.checkable
-                visibility = if (it.visible) {View.VISIBLE} else {View.INVISIBLE}
+    private fun handleExternal() {
+        val editedUser = sharedViewModel.editedUser.value
+        viewModel.onEvent(UserEditEvents.OpenFragment(editedUser))
+    }
+
+    private fun observers() {
+        viewModel.formState.observe(viewLifecycleOwner) { form->
+            binding.textViewId.text = form.id
+            binding.editTextUsername.setText(form.username)
+            binding.editTextPassword.setText(form.password)
+            binding.checkBoxAdmin.isChecked = form.administrator
+            binding.buttonDelete.isVisible = form.deleteVisible
+        }
+    }
+
+    private fun listeners() {
+        binding.buttonOK.setOnClickListener {
+            viewModel.onEvent(UserEditEvents.OnOkClick)
+        }
+        binding.buttonCancel.setOnClickListener {
+            viewModel.onEvent(UserEditEvents.OnCancelClick)
+        }
+        binding.buttonDelete.setOnClickListener {
+            viewModel.onEvent(UserEditEvents.OnDeleteClick)
+        }
+        binding.checkBoxAdmin.setOnClickListener {
+            viewModel.onEvent(UserEditEvents.OnAdminCheckboxClick)
+        }
+        binding.editTextUsername.addTextChangedListener {
+            it?.let {
+                viewModel.onEvent(UserEditEvents.OnEditUsername(it.toString()))
             }
         }
-
-        viewModel.cancelEnabled.observe(viewLifecycleOwner){
-            binding.buttonCancel.isEnabled = it.enabled
-        }
-
-        viewModel.toastMessage.observe(viewLifecycleOwner){
-            val msg = getString(it)
-            toastMessage(msg)
+        binding.editTextPassword.addTextChangedListener {
+            it?.let {
+                viewModel.onEvent(UserEditEvents.OnEditPassword(it.toString()))
+            }
         }
     }
 
-    private fun buttonListeners(){
-        binding.buttonOK.setOnClickListener {
-            onClickOk()
-        }
+//    private fun stateViewControllers(){
+//        viewModel.adminCheckBox.observe(viewLifecycleOwner){
+//            binding.checkBoxAdmin.apply {
+//                isChecked = it.checked
+//                isEnabled = it.checkable
+//                visibility = if (it.visible) {View.VISIBLE} else {View.INVISIBLE}
+//            }
+//        }
+//
+//        viewModel.cancelEnabled.observe(viewLifecycleOwner){
+//            binding.buttonCancel.isEnabled = it.enabled
+//        }
+//
+//        viewModel.toastMessage.observe(viewLifecycleOwner){
+//            val msg = getString(it)
+//            toastMessage(msg)
+//        }
+//    }
 
-        binding.buttonCancel.setOnClickListener {
-            onClickCancel()
-        }
+//    private fun buttonListeners(){
+//        binding.buttonOK.setOnClickListener {
+//            onClickOk()
+//        }
+//
+//        binding.buttonCancel.setOnClickListener {
+//            onClickCancel()
+//        }
+//
+//        binding.buttonDelete.setOnClickListener {
+//            onClickDelete()
+//        }
+//
+//        binding.checkBoxAdmin.setOnClickListener {
+//            onClickCheckAdmin()
+//        }
+//    }
 
-        binding.buttonDelete.setOnClickListener {
-            onClickDelete()
-        }
+//    private fun setValuesFromExternal() {
+//        viewModelUser.userForEdit.value?.let {
+//            viewModel.setCurrentUser(it)
+//            viewModelUser.userList.value?.let { viewModel.blockLastAdministrator(it) }
+//        }?: run {
+//            Log.e(TAG, "userForEdit.value: ${viewModelUser.userForEdit.value}")
+//        }
+//
+//        viewModel.currentUser.observe(viewLifecycleOwner) {
+//            Log.e(TAG, "viewModelUser.userForEdit userName ${it.userName}")
+//            updateView(it)
+//        }
+//    }
 
-        binding.checkBoxAdmin.setOnClickListener {
-            onClickCheckAdmin()
-        }
-    }
+//    private fun updateView(users: Users){
+//        binding.textViewId.text = users.userId.toString()
+//        binding.editTextUsername.setText(users.userName)
+//        binding.editTextPassword.setText(users.userPassword)
+//        binding.checkBoxAdmin.isChecked = users.userAdministrator
+//    }
 
-    private fun setValuesFromExternal() {
-        viewModelUser.userForEdit.value?.let {
-            viewModel.setCurrentUser(it)
-            viewModelUser.userList.value?.let { viewModel.blockLastAdministrator(it) }
-        }?: run {
-            Log.e(TAG, "userForEdit.value: ${viewModelUser.userForEdit.value}")
-        }
+//    private fun onClickCheckAdmin(){
+//        val state = binding.checkBoxAdmin.isChecked
+//        viewModel.elementsViewState(UserEditViewModel.ViewState.AdminCheckBox(checked = state))
+//    }
 
-        viewModel.currentUser.observe(viewLifecycleOwner) {
-            Log.e(TAG, "viewModelUser.userForEdit userName ${it.userName}")
-            updateView(it)
-        }
-    }
+//    private fun onClickOk(){
+//        val userName = binding.editTextUsername.text.toString()
+//        val password = binding.editTextPassword.text.toString()
+//        val id: String = binding.textViewId.text.toString()
+//        viewModel.validateAndSaveValues(userName, password, id)
+//        viewModel.validateForm.observe(viewLifecycleOwner){ validate ->
+//            if (validate.result) { parentFragmentManager.popBackStack() }
+//        }
+//    }
 
-    private fun updateView(users: Users){
-        binding.textViewId.text = users.userId.toString()
-        binding.editTextUsername.setText(users.userName)
-        binding.editTextPassword.setText(users.userPassword)
-        binding.checkBoxAdmin.isChecked = users.userAdministrator
-    }
+//    private fun onClickCancel(){
+//        parentFragmentManager.popBackStack()
+//    }
 
-    private fun onClickCheckAdmin(){
-        val state = binding.checkBoxAdmin.isChecked
-        viewModel.elementsViewState(UserEditViewModel.ViewState.AdminCheckBox(checked = state))
-    }
-
-    private fun onClickOk(){
-        val userName = binding.editTextUsername.text.toString()
-        val password = binding.editTextPassword.text.toString()
-        val id: String = binding.textViewId.text.toString()
-        viewModel.validateAndSaveValues(userName, password, id)
-        viewModel.validateForm.observe(viewLifecycleOwner){ validate ->
-            if (validate.result) { parentFragmentManager.popBackStack() }
-        }
-    }
-
-    private fun onClickCancel(){
-        parentFragmentManager.popBackStack()
-    }
-
-    private fun onClickDelete(){
-        //send data to repository
-        viewModelUser.userList.value?.let {
-            viewModel.deleteCredentials(it)
-        }
-        viewModel.deleteUserEvent.observe(viewLifecycleOwner) {
-            parentFragmentManager.popBackStack()
-        }
-        //close fragment
-    }
+//    private fun onClickDelete(){
+//        //send data to repository
+//        viewModelUser.userList.value?.let {
+//            viewModel.deleteCredentials(it)
+//        }
+//        viewModel.deleteUserEvent.observe(viewLifecycleOwner) {
+//            parentFragmentManager.popBackStack()
+//        }
+//        //close fragment
+//    }
 
     override fun onDestroy() {
-        APP.binding.pager.visibility = View.VISIBLE // show pager
-        viewModelUser.clearUserForEdit()
-        Log.e(TAG, "EditUser onDestroy: ${viewModelUser.userForEdit}")
+//        APP.binding.pager.visibility = View.VISIBLE // show pager
+//        viewModelUser.clearUserForEdit()
+//        Log.e(TAG, "EditUser onDestroy: ${viewModelUser.userForEdit}")
         super.onDestroy()
     }
 
@@ -159,9 +214,9 @@ class UserEditFragment : Fragment() {
         singleOkDialog.show()
     }
 
-    private fun toastMessage(message: String){
-        Toast.makeText(this.requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
+//    private fun toastMessage(message: String){
+//        Toast.makeText(this.requireContext(), message, Toast.LENGTH_SHORT).show()
+//    }
 
     private fun backPressOverride(){
         requireActivity()

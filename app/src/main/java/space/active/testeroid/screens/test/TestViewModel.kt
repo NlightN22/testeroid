@@ -170,6 +170,13 @@ class TestViewModel(
             }
             is TestUiState.ShowEmpty -> {
                 _formState.value = TestFormState()
+                _formState.value?.let { form ->
+                    form.variants.forEach { it.enabled = false }
+                    form.restartVisibility = true
+                    form.submitEnabled = false
+                    form.title = UiText.StringResource(R.string.test_empty)
+                }
+                _formState.notifyObserver()
             }
         }
     }

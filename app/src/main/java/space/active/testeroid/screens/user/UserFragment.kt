@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collectLatest
@@ -24,6 +25,7 @@ import space.active.testeroid.databinding.FragmentUserBinding
 import space.active.testeroid.db.TestsDatabase
 import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.RepositoryRealization
+import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.useredit.UserEditFragment
@@ -31,6 +33,7 @@ import space.active.testeroid.screens.useredit.UserEditFragment
 class UserFragment : Fragment() {
     lateinit var binding: FragmentUserBinding
     lateinit var viewModel: UserViewModel
+    lateinit var sharedViewModel: SharedViewModel
     private lateinit var viewModelMain: MainActivityViewModel
 
     override fun onCreateView(
@@ -40,7 +43,7 @@ class UserFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentUserBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(
-            requireActivity(),
+            this,
             UserViewModelFactory(this.requireContext())
         ).get(UserViewModel::class.java)
 
@@ -48,6 +51,9 @@ class UserFragment : Fragment() {
             requireActivity(),
             MainActivityViewModelFactory(this.requireContext())
         ).get(MainActivityViewModel::class.java)
+
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+
         return binding.root
     }
 
@@ -57,19 +63,6 @@ class UserFragment : Fragment() {
     }
 
     private fun init() {
-        Log.e(TAG, "UserFragment end initialization")
-        fillRecyclerView()
-
-        binding.fbAddItem.setOnClickListener {
-            onAddClick()
-        }
-
-        viewModelMain.deleteClick.observe(viewLifecycleOwner){
-            onDeleteClick()
-        }
-    }
-
-    private fun fillRecyclerView(){
         val recyclerView: RecyclerView = binding.recyclerView
         val adapter = RecyclerViewAdapter(
             object : RecyclerViewAdapter.ItemClickListener{
@@ -85,7 +78,12 @@ class UserFragment : Fragment() {
             }
         )
         recyclerView.adapter = adapter
+        observers(adapter)
+        listeners()
+        Log.e(TAG, "UserFragment end initialization")
+    }
 
+    private fun observers(adapter: RecyclerViewAdapter) {
         viewModel.userList.observe(viewLifecycleOwner) { list->
             Log.e(TAG, "userList $list")
             val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
@@ -101,59 +99,58 @@ class UserFragment : Fragment() {
                     adapter.setSelected(listOf(it))
                 }
             }
+            viewModel.errorMsg.collectLatest {
+                toastMessage(it.asString(requireContext()))
+            }
+        }
+        viewModel.passwordDialogEvent.observe(viewLifecycleOwner) { userName ->
+            inputPasswordDialog(userName)
         }
 
+        viewModel.openEditUserEvent.observe(viewLifecycleOwner) { userForEdit ->
+            sharedViewModel.setUserForEdit(userForEdit.userId) // save id to share data
+//            openFragment(UserEditFragment()) // TODO uncomment
+        }
     }
 
-    private fun showToolBar(){
-        viewModelMain.setViewState(MainActivityViewModel.ViewStateMain.BottomToolBar(true))
-        viewModelMain.setViewState(
-            MainActivityViewModel.ViewStateMain.BottomToolBarButtons(
-            add = false,
-            edit = true,
-            delete = true
-        ))
-    }
-
-    private fun closeToolBar(){
-        viewModelMain.setViewState(MainActivityViewModel.ViewStateMain.BottomToolBar(false))
+    private fun listeners() {
+        binding.fbAddItem.setOnClickListener {
+            onAddClick()
+        }
     }
 
     private fun onItemClick(userId: Long){
-        Log.e(TAG, "Click to Item")
-        openEditFragment(userId)
+        viewModel.onEvent(UserViewModel.UserEvents.OnClickItem(userId))
+//        openEditFragment(userId)
     }
 
     private fun onItemLongClick(userId: Long){
-        viewModel.selectUserListItem(userId)
+        viewModel.onEvent(UserViewModel.UserEvents.OnLongClickItem(userId))
     }
 
     private fun onAddClick(){
         Log.e(TAG, "Click to ADD")
-        // open UserEdit cleared
-        openEditFragment()
+        openFragment(UserEditFragment())
     }
 
-    private fun openEditFragment(userId: Long = 0){
-        // ask password if it is
-        if (userId > 0) {
-//            Log.e(TAG, "setUserForEdit userId: $userId")
-            viewModel.setUserForEdit(userId)
-            viewModel.passwordDialogEvent.observe(viewLifecycleOwner) { userName ->
-                inputPasswordDialog(userName)
-            }
-            viewModel.passwordCheckResult.observe(viewLifecycleOwner) { result ->
-                if (result == UserViewModel.CheckState.Ok) {
-                    openFragment(UserEditFragment())
-                }
-                else if (result == UserViewModel.CheckState.NotOk) {
-                    toastMessage(getString(R.string.user_toast_wrong_password))
-                }
-            }
-        } else {
-            openFragment(UserEditFragment())
-        }
-    }
+//    private fun openEditFragment(userId: Long = 0){
+//        // ask password if it is
+//        if (userId > 0) {
+////            Log.e(TAG, "setUserForEdit userId: $userId")
+//            viewModel.setUserForEdit(userId)
+//
+//            viewModel.passwordCheckResult.observe(viewLifecycleOwner) { result ->
+//                if (result == UserViewModel.CheckState.Ok) {
+//                    openFragment(UserEditFragment())
+//                }
+//                else if (result == UserViewModel.CheckState.NotOk) {
+//                    toastMessage(getString(R.string.user_toast_wrong_password))
+//                }
+//            }
+//        } else {
+//            openFragment(UserEditFragment())
+//        }
+//    }
 
     private fun openFragment(newFragment: Fragment){
 
@@ -165,11 +162,6 @@ class UserFragment : Fragment() {
         }
     }
 
-    private fun onDeleteClick(){
-        // ask password if it is
-        // delete
-    }
-
     private fun inputPasswordDialog(userName: String) {
         val passwordLayout = EditTextInputPasswordBinding.inflate(layoutInflater)
 
@@ -179,20 +171,15 @@ class UserFragment : Fragment() {
             .setView(passwordLayout.root)
             .setPositiveButton(R.string.dialog_OK) {_ , _ ->
                 val result = passwordLayout.editTextPassword.text.toString()
-                viewModel.checkUserPassword(result)
+                viewModel.onEvent(UserViewModel.UserEvents.OkDialogPassword(result))
             }
-            .setNegativeButton("Cancel") {_,_ ->}
-            .setOnCancelListener { toastMessage("Cancelled") }
-//            .setOnDismissListener {
-//                DialogInterface.OnClickListener { dialogInterface, i ->
-//                    when (i) {
-//                        DialogInterface.BUTTON_POSITIVE -> toastMessage("Ok")
-//                        DialogInterface.BUTTON_NEGATIVE -> toastMessage("Cancel")
-//                    }
-//                }
-//            }
+            .setNegativeButton("Cancel") {_,_ ->
+                viewModel.onEvent(UserViewModel.UserEvents.CancelDialogPassword)
+            }
+            .setOnCancelListener {
+                viewModel.onEvent(UserViewModel.UserEvents.CancelDialogPassword)
+                toastMessage("Cancelled") }
             .create()
-
         passwordInputDialog.show()
     }
 

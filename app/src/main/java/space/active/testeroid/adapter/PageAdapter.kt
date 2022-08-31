@@ -9,6 +9,7 @@ import space.active.testeroid.screens.edittestlist.EditTestListFragment
 import space.active.testeroid.screens.score.ScoreFragment
 import space.active.testeroid.screens.test.TestFragment
 import space.active.testeroid.screens.user.UserFragment
+import space.active.testeroid.screens.useredit.UserEditFragment
 
 class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle) {
     override fun getItemCount(): Int {
@@ -17,7 +18,7 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): Fragm
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> TestFragment()
+            0 -> UserEditFragment()
             1 -> EditTestListFragment()
             2 -> UserFragment()
             3 -> ScoreFragment()

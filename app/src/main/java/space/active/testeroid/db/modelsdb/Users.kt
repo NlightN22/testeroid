@@ -9,9 +9,9 @@ data class Users (
     @PrimaryKey(autoGenerate = true)
     var userId: Long = 0,
     @ColumnInfo
-    val userName: String = "",
+    var userName: String = "",
     @ColumnInfo
-    val userPassword: String = "",
+    var userPassword: String = "",
     @ColumnInfo
     var userAdministrator: Boolean = false,
     @ColumnInfo

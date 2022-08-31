@@ -10,9 +10,108 @@ import kotlinx.coroutines.launch
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
+import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.Repository
 
 class UserEditViewModel(private val repository: Repository): ViewModel() {
+
+    private lateinit var _editedUser: Users
+
+    private val _formState = MutableLiveData<UserEditFormState>(UserEditFormState())
+    val formState: LiveData<UserEditFormState> = _formState
+
+    private var _activeForm = false
+
+
+    fun uiState (state: UserEditUiState) {
+        when (state) {
+            is UserEditUiState.NewUser -> {
+                _activeForm = true
+                _formState.value?.let { form->
+                    form.deleteVisible = false
+                }
+                _formState.notifyObserver()
+            }
+            is UserEditUiState.EditUser -> {
+                _activeForm = true
+                _formState.value?.let { form ->
+                    form.id = _editedUser.userId.toString()
+                    form.username = _editedUser.userName
+                    form.password = _editedUser.userPassword
+                    form.administrator = _editedUser.userAdministrator
+                    form.deleteVisible = true
+                }
+                _formState.notifyObserver()
+            }
+            is UserEditUiState.RestoreForm -> {
+                _formState.value?.let { form ->
+                    form.id = _editedUser.userId.toString()
+                    form.username = _editedUser.userName
+                    form.password = _editedUser.userPassword
+                    form.administrator = _editedUser.userAdministrator
+                }
+                _formState.notifyObserver()
+            }
+            is UserEditUiState.ErrorMessage -> {}
+        }
+    }
+
+    fun onEvent (event: UserEditEvents) {
+        when (event) {
+            is UserEditEvents.OpenFragment -> {
+                _formState.value?.let { form ->
+                    if (!_activeForm) {
+                        event.userId?.let {
+                            viewModelScope.launch {
+                                _editedUser = repository.getUser(event.userId)
+                                uiState(UserEditUiState.EditUser)
+                            }
+                        }?: run {
+                            _editedUser = Users()
+                            uiState(UserEditUiState.NewUser)
+                        }
+                    } else {
+                        uiState(UserEditUiState.RestoreForm)
+                    }
+                }
+            }
+            is UserEditEvents.OnAdminCheckboxClick -> {
+                _formState.value?.let {form ->
+                    form.administrator = !form.administrator
+                    _editedUser.userAdministrator = form.administrator
+                }
+                _formState.notifyObserver()
+            }
+            is UserEditEvents.OnOkClick -> {
+                viewModelScope.launch {
+                    repository.addUser(_editedUser)
+                }
+            }
+            is UserEditEvents.OnCancelClick -> {
+                _editedUser = Users()
+            }
+            is UserEditEvents.OnDeleteClick -> {
+                viewModelScope.launch {
+                    _editedUser = Users()
+                    repository.deleteUser(_editedUser)
+                }
+            }
+            is UserEditEvents.OnEditUsername -> {
+                _editedUser.userName = event.string
+            }
+            is UserEditEvents.OnEditPassword -> {
+                _editedUser.userPassword = event.string
+            }
+        }
+    }
+
+// TODO add to Destroy                    _formState.value?.let { it.active = false }
+
+
+
+
+
+
 
     private val _adminCheckBox = MutableLiveData(ViewState.AdminCheckBox())
     val adminCheckBox: LiveData<ViewState.AdminCheckBox> = _adminCheckBox
