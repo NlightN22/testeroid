@@ -6,6 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -15,13 +18,15 @@ import space.active.testeroid.repository.Repository
 
 class UserEditViewModel(private val repository: Repository): ViewModel() {
 
-    private lateinit var _editedUser: Users
+    private var _editedUser: Users = Users()
 
     private val _formState = MutableLiveData<UserEditFormState>(UserEditFormState())
     val formState: LiveData<UserEditFormState> = _formState
 
     private var _activeForm = false
 
+    private val _terminateSignal = MutableSharedFlow<Boolean>()
+    val terminateSignal: SharedFlow<Boolean> = _terminateSignal
 
     fun uiState (state: UserEditUiState) {
         when (state) {
@@ -52,6 +57,21 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
                 }
                 _formState.notifyObserver()
             }
+            is UserEditUiState.LastAdmin -> {
+                _formState.value?.let { form->
+                    viewModelScope.launch {
+                        repository.allUsers().collectLatest { list->
+                            if (list.size <= 1) {
+                                Log.e(TAG, "UserEditUiState.LastAdmin")
+                                form.adminEnabled = false
+                                form.administrator = true
+                                _formState.notifyObserver()
+                            }
+                        }
+                    }
+
+                }
+            }
             is UserEditUiState.ErrorMessage -> {}
         }
     }
@@ -73,6 +93,7 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
                     } else {
                         uiState(UserEditUiState.RestoreForm)
                     }
+                    uiState(UserEditUiState.LastAdmin)
                 }
             }
             is UserEditEvents.OnAdminCheckboxClick -> {
@@ -85,15 +106,18 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
             is UserEditEvents.OnOkClick -> {
                 viewModelScope.launch {
                     repository.addUser(_editedUser)
+                    _terminateSignal.emit(true)
                 }
             }
             is UserEditEvents.OnCancelClick -> {
-                _editedUser = Users()
+                viewModelScope.launch {
+                    _terminateSignal.emit(true)
+                }
             }
             is UserEditEvents.OnDeleteClick -> {
                 viewModelScope.launch {
-                    _editedUser = Users()
                     repository.deleteUser(_editedUser)
+                    _terminateSignal.emit(true)
                 }
             }
             is UserEditEvents.OnEditUsername -> {
@@ -105,11 +129,21 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
+    fun isLastAdministrator(userList: List<Users>): Boolean {
+        val listAdmin = userList.filter { it.userAdministrator }
+        if (listAdmin.size <= 1) {
+            return true
+        }
+    return false
+    }
+
+    override fun onCleared() {
+        _editedUser = Users()
+        Log.e(TAG, "UserEditViewModel is cleared")
+        super.onCleared()
+    }
+
 // TODO add to Destroy                    _formState.value?.let { it.active = false }
-
-
-
-
 
 
 
@@ -208,15 +242,7 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
-    fun isLastAdministrator(userList: List<Users>): Boolean {
-        _currentUser.value?.let { user ->
-            val listAdmin = userList.filter { it.userAdministrator }
-            if (listAdmin.size <= 1 && user.userAdministrator) {
-                return true
-            }
-        }
-        return false
-    }
+
 
     //Send to Database
     fun saveCredentials(user: Users){
@@ -240,10 +266,7 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
        }
    }
 
-    override fun onCleared() {
-        Log.e(TAG, "UserEditViewModel is cleared")
-        super.onCleared()
-    }
+
 
     sealed class ViewState{
         data class AdminCheckBox(

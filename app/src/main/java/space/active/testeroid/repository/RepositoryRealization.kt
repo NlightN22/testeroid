@@ -10,7 +10,7 @@ import space.active.testeroid.db.relations.TestWithQuestions
 import kotlinx.coroutines.flow.Flow
 
 class RepositoryRealization(private val dao: TestsDao): Repository {
-    override fun allUsers(): LiveData<List<Users>> {
+    override fun allUsers(): Flow<List<Users>> {
         return dao.getAllUsers()
     }
 

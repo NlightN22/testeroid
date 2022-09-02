@@ -18,7 +18,7 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): Fragm
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> UserEditFragment()
+            0 -> TestFragment()
             1 -> EditTestListFragment()
             2 -> UserFragment()
             3 -> ScoreFragment()

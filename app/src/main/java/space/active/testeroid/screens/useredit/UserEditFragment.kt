@@ -12,6 +12,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -52,7 +54,7 @@ class UserEditFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        APP.binding.pager.visibility = View.GONE // hide pager
+        APP.binding.pager.visibility = View.GONE // hide pager
 
         init()
     }
@@ -74,6 +76,7 @@ class UserEditFragment : Fragment() {
     private fun handleExternal() {
         val editedUser = sharedViewModel.editedUser.value
         viewModel.onEvent(UserEditEvents.OpenFragment(editedUser))
+        sharedViewModel.clearUserForEdit()
     }
 
     private fun observers() {
@@ -82,7 +85,15 @@ class UserEditFragment : Fragment() {
             binding.editTextUsername.setText(form.username)
             binding.editTextPassword.setText(form.password)
             binding.checkBoxAdmin.isChecked = form.administrator
+            binding.checkBoxAdmin.isEnabled = form.adminEnabled
             binding.buttonDelete.isVisible = form.deleteVisible
+        }
+        lifecycleScope.launchWhenResumed {
+            viewModel.terminateSignal.collectLatest { terminate->
+                if (terminate) {
+                    parentFragmentManager.popBackStack()
+                }
+            }
         }
     }
 
@@ -200,9 +211,8 @@ class UserEditFragment : Fragment() {
 //    }
 
     override fun onDestroy() {
-//        APP.binding.pager.visibility = View.VISIBLE // show pager
-//        viewModelUser.clearUserForEdit()
-//        Log.e(TAG, "EditUser onDestroy: ${viewModelUser.userForEdit}")
+        APP.binding.pager.visibility = View.VISIBLE // show pager
+        Log.e(TAG, "EditUser onDestroy")
         super.onDestroy()
     }
 

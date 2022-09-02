@@ -84,23 +84,35 @@ class UserFragment : Fragment() {
     }
 
     private fun observers(adapter: RecyclerViewAdapter) {
-        viewModel.userList.observe(viewLifecycleOwner) { list->
-            Log.e(TAG, "userList $list")
-            val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
-            list.forEach { user ->
-                listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
+//        viewModel.userList.observe(viewLifecycleOwner) { list->
+//            Log.e(TAG, "userList $list")
+//            val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
+//            list.forEach { user ->
+//                listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
+//            }
+//            adapter.setList(listAdapter)
+//        }
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.errorMsg.collectLatest {
+                Log.e(TAG,"errorMsg: ${it.asString(requireContext())}")
+                toastMessage(it.asString(requireContext()))
             }
-            adapter.setList(listAdapter)
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+            viewModel.userList.collectLatest { list->
+                Log.e(TAG, "userList $list")
+                val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
+                list.forEach { user ->
+                    listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
+                }
+                adapter.setList(listAdapter)
+            }
             viewModel.selectedUser.collectLatest {
                 it?.let {
                     adapter.setSelected(listOf(it))
                 }
-            }
-            viewModel.errorMsg.collectLatest {
-                toastMessage(it.asString(requireContext()))
             }
         }
         viewModel.passwordDialogEvent.observe(viewLifecycleOwner) { userName ->
@@ -109,13 +121,14 @@ class UserFragment : Fragment() {
 
         viewModel.openEditUserEvent.observe(viewLifecycleOwner) { userForEdit ->
             sharedViewModel.setUserForEdit(userForEdit.userId) // save id to share data
-//            openFragment(UserEditFragment()) // TODO uncomment
+            openFragment(UserEditFragment())
         }
     }
 
     private fun listeners() {
         binding.fbAddItem.setOnClickListener {
-            onAddClick()
+            Log.e(TAG, "Click to ADD")
+            openFragment(UserEditFragment())
         }
     }
 
@@ -128,10 +141,6 @@ class UserFragment : Fragment() {
         viewModel.onEvent(UserViewModel.UserEvents.OnLongClickItem(userId))
     }
 
-    private fun onAddClick(){
-        Log.e(TAG, "Click to ADD")
-        openFragment(UserEditFragment())
-    }
 
 //    private fun openEditFragment(userId: Long = 0){
 //        // ask password if it is

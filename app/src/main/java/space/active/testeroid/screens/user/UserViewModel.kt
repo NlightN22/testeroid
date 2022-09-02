@@ -19,7 +19,7 @@ class UserViewModel(
     ): ViewModel() {
 
     val selectedUser: Flow<Long?> = dataStore.userId
-    val userList: LiveData<List<Users>> = repository.allUsers()
+    val userList: Flow<List<Users>> = repository.allUsers()
 
     private val _passwordDialogEvent = SingleLiveEvent<String>()
     val passwordDialogEvent: LiveData<String> = _passwordDialogEvent
@@ -41,7 +41,7 @@ class UserViewModel(
             }
             is UserUiState.ShowError -> {
                 viewModelScope.launch {
-                    _errorMsg.emit(UiText.DynamicString(state.msg))
+                    _errorMsg.emit(UiText.StringResource(state.msg))
                 }
             }
             is UserUiState.ShowInputPasswordDialog -> {
@@ -58,7 +58,7 @@ class UserViewModel(
     }
 
     fun onEvent(event: UserEvents) {
-        when (event){
+        when (event) {
             is UserEvents.OnClickItem -> {
                 viewModelScope.launch {
                     _userForEdit = repository.getUser(event.userId)
@@ -76,7 +76,7 @@ class UserViewModel(
                 if (_userForEdit.userPassword == event.password) {
                     uiState(UserUiState.OpenUserEdit)
                 } else {
-                    uiState(UserUiState.ShowError("Wrong password")) // TODO replace for R string
+                    uiState(UserUiState.ShowError(R.string.user_toast_wrong_password)) // TODO replace for R string
                     _userForEdit = Users() // clear userForEdit
                 }
             }
@@ -86,55 +86,15 @@ class UserViewModel(
         }
     }
 
-//    private val _userForEdit = MutableLiveData<Users>()
-//    val userForEdit: LiveData<Users> = _userForEdit
-
-//    private val _passwordCheckResult = SingleLiveEvent<CheckState>()
-//    val passwordCheckResult: LiveData<CheckState> = _passwordCheckResult
-
-//    fun setUserForEdit(userId: Long){
-//        // Coroutines with start another fragment or activity not work.
-//        // Need to prepare values for sending
-//        viewModelScope.launch(Dispatchers.IO) {
-//            Log.e(TAG, "setUserForEdit: $userId")
-//            val user = repository.getUser(userId)
-//            Log.e(TAG, "setUserForEdit user repository.getUser(userId): $user")
-//            _userForEdit.postValue(user)
-//            Log.e(TAG, "setUserForEdit postValue: ${_userForEdit.value}")
-//            if (user.userPassword.isNotEmpty()) {
-//                _passwordDialogEvent.postValue(user.userName)
-//                _passwordCheckResult.postValue(CheckState.NeedPassword)
-//            }else if (user.userPassword.isEmpty()) {
-//                _passwordCheckResult.postValue(CheckState.Ok)
-//            }
-//        }
-//    }
-
-//    fun checkUserPassword(password: String){
-//        Log.e(TAG, "fun checkUserPassword $password")
-//        if (_userForEdit.userPassword == password) {
-//            _passwordCheckResult.value = CheckState.Ok
-//        } else {
-//            _passwordCheckResult.value = CheckState.NotOk
-//        }
-//    }
-
-//    fun clearUserForEdit(){
-//        _userForEdit.value = Users() // clean user
-//    }
-
     override fun onCleared() {
         Log.e(TAG, "$this is cleared")
-//        Log.e(TAG, "_userForEdit.value ${_userForEdit.value}")
         super.onCleared()
     }
 
     sealed class UserEvents {
-        data class OnClickItem(val userId: Long): UserEvents()
-        data class OnLongClickItem(val userId: Long): UserEvents()
-        data class OkDialogPassword(val password: String): UserEvents()
-        object CancelDialogPassword: UserEvents()
+        data class OnClickItem(val userId: Long) : UserEvents()
+        data class OnLongClickItem(val userId: Long) : UserEvents()
+        data class OkDialogPassword(val password: String) : UserEvents()
+        object CancelDialogPassword : UserEvents()
     }
-
-enum class CheckState{Ok, NotOk, NeedPassword}
 }

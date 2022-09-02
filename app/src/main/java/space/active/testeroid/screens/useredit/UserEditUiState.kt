@@ -6,5 +6,6 @@ sealed class UserEditUiState {
     object NewUser: UserEditUiState()
     object EditUser: UserEditUiState()
     object RestoreForm: UserEditUiState()
+    object LastAdmin: UserEditUiState()
     data class ErrorMessage (var msg: String): UserEditUiState()
 }

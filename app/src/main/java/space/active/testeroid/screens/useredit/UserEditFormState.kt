@@ -8,5 +8,6 @@ data class UserEditFormState(
     var username: String = "",
     var password: String = "",
     var administrator: Boolean = false,
+    var adminEnabled: Boolean = true,
     var deleteVisible: Boolean = true,
 )

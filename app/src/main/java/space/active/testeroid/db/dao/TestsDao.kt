@@ -87,7 +87,7 @@ interface TestsDao {
     fun getAllTestsOnly(): LiveData<List<Tests>>
 
     @Query("SELECT * FROM Users")
-    fun getAllUsers(): LiveData<List<Users>>
+    fun getAllUsers(): Flow<List<Users>>
 
     @Query("SELECT * FROM Users WHERE userId = :userId")
     suspend fun getUser(userId: Long): Users

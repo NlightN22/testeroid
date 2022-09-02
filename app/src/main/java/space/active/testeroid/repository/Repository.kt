@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface Repository {
 
     // User
-    fun allUsers(): LiveData<List<Users>>
+    fun allUsers(): Flow<List<Users>>
     suspend fun addUser(user:Users)
     suspend fun getUser(userId: Long): Users
     suspend fun getUserScore(userId: Long): Int
