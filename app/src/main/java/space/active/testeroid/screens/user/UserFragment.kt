@@ -100,6 +100,8 @@ class UserFragment : Fragment() {
             }
         }
 
+
+        // NB need to start different coroutines for diff variables
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
             viewModel.userList.collectLatest { list->
                 Log.e(TAG, "userList $list")
@@ -109,7 +111,10 @@ class UserFragment : Fragment() {
                 }
                 adapter.setList(listAdapter)
             }
+        }
+        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
             viewModel.selectedUser.collectLatest {
+                Log.e(TAG, "selectedUser.collectLatest $it")
                 it?.let {
                     adapter.setSelected(listOf(it))
                 }

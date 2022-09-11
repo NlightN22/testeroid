@@ -55,6 +55,7 @@
     <string name="test_submit">Submit</string>
     <string name="test_restart">restart</string>
     <string name="test_empty">Add test and press restart</string>
+    <string name="edit_user_select">Select User</string>
 
 
 </resources>

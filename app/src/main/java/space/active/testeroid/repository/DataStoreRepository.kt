@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.map
 import space.active.testeroid.TAG
 import space.active.testeroid.screens.main.dataStore
 import java.io.IOException
-import java.lang.Exception
 
 const val SELECTED_USER = "userId"
 const val CORRECT_SCORE = "correctScore"

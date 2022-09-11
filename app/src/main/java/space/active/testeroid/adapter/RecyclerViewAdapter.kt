@@ -65,7 +65,7 @@ class RecyclerViewAdapter(
 
     // Update RV and store list into listTests
     fun setList(list: List<AdapterValues>){
-        Log.e(TAG, "Start setList ${list.size}")
+        Log.e(TAG, "Start setList list.size: ${list.size}")
         listItems = list
         notifyDataSetChanged()
     }
@@ -73,9 +73,11 @@ class RecyclerViewAdapter(
     fun setSelected(listSelectedItemId: List<Long>){
         listItems.forEach { item->
             if (listSelectedItemId.any { selected -> item.itemId == selected}) {
-                item.selected = true
-                notifyItemChanged(item.position)
-            } else {
+                if (!item.selected) {
+                    item.selected = true
+                    notifyItemChanged(item.position)
+                }
+            } else if (item.selected) {
                 item.selected = false
                 notifyItemChanged(item.position)
             }

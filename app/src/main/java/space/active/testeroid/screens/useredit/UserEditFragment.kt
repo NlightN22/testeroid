@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
@@ -18,10 +17,7 @@ import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentUserEditBinding
-import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.screens.SharedViewModel
-import space.active.testeroid.screens.user.UserViewModel
-import space.active.testeroid.screens.user.UserViewModelFactory
 
 class UserEditFragment : Fragment() {
 
@@ -86,7 +82,8 @@ class UserEditFragment : Fragment() {
             binding.editTextPassword.setText(form.password)
             binding.checkBoxAdmin.isChecked = form.administrator
             binding.checkBoxAdmin.isEnabled = form.adminEnabled
-            binding.buttonDelete.isVisible = form.deleteVisible
+            binding.buttonDelete.isEnabled = form.deleteEnabled
+            binding.buttonSelect.isEnabled = form.selectedEnabled
         }
         lifecycleScope.launchWhenResumed {
             viewModel.terminateSignal.collectLatest { terminate->
@@ -106,6 +103,9 @@ class UserEditFragment : Fragment() {
         }
         binding.buttonDelete.setOnClickListener {
             viewModel.onEvent(UserEditEvents.OnDeleteClick)
+        }
+        binding.buttonSelect.setOnClickListener {
+            viewModel.onEvent(UserEditEvents.OnSelectClick)
         }
         binding.checkBoxAdmin.setOnClickListener {
             viewModel.onEvent(UserEditEvents.OnAdminCheckboxClick)

@@ -1,6 +1,7 @@
 package space.active.testeroid.screens.useredit
 
 import android.util.Log
+import androidx.datastore.dataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,9 +15,13 @@ import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.notifyObserver
+import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.Repository
 
-class UserEditViewModel(private val repository: Repository): ViewModel() {
+class UserEditViewModel(
+    private val repository: Repository,
+    private val dataStore: DataStoreRepository
+    ): ViewModel() {
 
     private var _editedUser: Users = Users()
 
@@ -33,7 +38,8 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
             is UserEditUiState.NewUser -> {
                 _activeForm = true
                 _formState.value?.let { form->
-                    form.deleteVisible = false
+                    form.deleteEnabled = false
+                    form.selectedEnabled = false
                 }
                 _formState.notifyObserver()
             }
@@ -44,7 +50,8 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
                     form.username = _editedUser.userName
                     form.password = _editedUser.userPassword
                     form.administrator = _editedUser.userAdministrator
-                    form.deleteVisible = true
+                    form.deleteEnabled = true
+                    form.selectedEnabled = true
                 }
                 _formState.notifyObserver()
             }
@@ -118,6 +125,11 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
                 viewModelScope.launch {
                     repository.deleteUser(_editedUser)
                     _terminateSignal.emit(true)
+                }
+            }
+            is UserEditEvents.OnSelectClick -> {
+                viewModelScope.launch {
+                    dataStore.saveUserId(_editedUser.userId)
                 }
             }
             is UserEditEvents.OnEditUsername -> {
@@ -242,8 +254,6 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
-
-
     //Send to Database
     fun saveCredentials(user: Users){
         viewModelScope.launch(Dispatchers.IO) {
@@ -265,8 +275,6 @@ class UserEditViewModel(private val repository: Repository): ViewModel() {
            }
        }
    }
-
-
 
     sealed class ViewState{
         data class AdminCheckBox(

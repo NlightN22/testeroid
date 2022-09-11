@@ -1,7 +1,5 @@
 package space.active.testeroid.screens.useredit
 
-import space.active.testeroid.screens.user.UserViewModel
-
 data class UserEditFormState(
     var id: String = "",
     var title: String = "",
@@ -9,5 +7,6 @@ data class UserEditFormState(
     var password: String = "",
     var administrator: Boolean = false,
     var adminEnabled: Boolean = true,
-    var deleteVisible: Boolean = true,
+    var deleteEnabled: Boolean = true,
+    var selectedEnabled: Boolean = true,
 )

@@ -11,6 +11,45 @@ import space.active.testeroid.helpers.notifyObserver
 
 class MainActivityViewModel(private val repository: RepositoryRealization): ViewModel() {
 
+    private val _form = MutableLiveData<MainActivityFormState>(MainActivityFormState())
+    val form: LiveData<MainActivityFormState> = _form
+
+    fun uiState(state: MainActivityUiState) {
+        when (state) {
+            is MainActivityUiState.ShowNavigation -> {
+                _form.value?.let { form ->
+                    form.tabs.visibility = false
+                    form.navigation.visibility = true
+                    form.navigation.add = state.navigation.add
+                    form.navigation.edit = state.navigation.edit
+                    form.navigation.delete = state.navigation.delete
+                    _form.notifyObserver()
+                }
+            }
+            is MainActivityUiState.ShowTabs -> {
+                _form.value?.let { form->
+                    form.tabs.visibility = true
+                    form.navigation.visibility = false
+                    _form.notifyObserver()
+                }
+            }
+            is MainActivityUiState.HideBottom -> {
+                _form.value?.let {
+                    it.tabs.visibility = false
+                    it.navigation.visibility = false
+                    _form.notifyObserver()
+                }
+            }
+            is MainActivityUiState.ShowBottom -> {
+                _form.value?.let {
+                    it.tabs.visibility = true
+                    it.navigation.visibility = false
+                    _form.notifyObserver()
+                }
+            }
+        }
+    }
+
     var bottomToolBarVisibility = MutableLiveData<Boolean>(false)
     var bottomItemsVisibility = MutableLiveData(
         ViewStateMain.BottomToolBarButtons(

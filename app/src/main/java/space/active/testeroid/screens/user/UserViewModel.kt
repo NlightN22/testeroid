@@ -35,7 +35,8 @@ class UserViewModel(
     private fun uiState(state: UserUiState) {
         when (state) {
             is UserUiState.SelectedUser -> {
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch {
+                    Log.e(TAG, "state.userId: ${state.userId}")
                     dataStore.saveUserId(state.userId)
                 }
             }
@@ -70,13 +71,13 @@ class UserViewModel(
                 }
             }
             is UserEvents.OnLongClickItem -> {
-                uiState(UserUiState.SelectedUser(event.userId))
+//                uiState(UserUiState.SelectedUser(event.userId))
             }
             is UserEvents.OkDialogPassword -> {
                 if (_userForEdit.userPassword == event.password) {
                     uiState(UserUiState.OpenUserEdit)
                 } else {
-                    uiState(UserUiState.ShowError(R.string.user_toast_wrong_password)) // TODO replace for R string
+                    uiState(UserUiState.ShowError(R.string.user_toast_wrong_password))
                     _userForEdit = Users() // clear userForEdit
                 }
             }
