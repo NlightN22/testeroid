@@ -16,6 +16,20 @@ class MainActivityViewModel(private val repository: RepositoryRealization): View
 
     fun uiState(state: MainActivityUiState) {
         when (state) {
+            is MainActivityUiState.ShowModalFragment -> {
+                _form.value?.let { form->
+                    form.pager.visibility = false
+                    uiState(MainActivityUiState.HideBottom)
+                    _form.notifyObserver()
+                }
+            }
+            is MainActivityUiState.CloseModalFragment -> {
+                _form.value?.let { form->
+                    form.pager.visibility = true
+                    uiState(MainActivityUiState.ShowTabs)
+                    _form.notifyObserver()
+                }
+            }
             is MainActivityUiState.ShowNavigation -> {
                 _form.value?.let { form ->
                     form.tabs.visibility = false
@@ -36,13 +50,6 @@ class MainActivityViewModel(private val repository: RepositoryRealization): View
             is MainActivityUiState.HideBottom -> {
                 _form.value?.let {
                     it.tabs.visibility = false
-                    it.navigation.visibility = false
-                    _form.notifyObserver()
-                }
-            }
-            is MainActivityUiState.ShowBottom -> {
-                _form.value?.let {
-                    it.tabs.visibility = true
                     it.navigation.visibility = false
                     _form.notifyObserver()
                 }

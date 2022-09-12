@@ -7,12 +7,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.isVisible
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -83,12 +82,17 @@ class MainActivity : AppCompatActivity() {
         this.visibility = if (value) {View.VISIBLE} else {View.INVISIBLE}
     }
 
+    private fun ViewPager2.visible (value: Boolean) {
+        this.visibility = if (value) {View.VISIBLE} else {View.INVISIBLE}
+    }
+
     private fun observers() {
         // Bottom visible state
         viewModel.form.observe(this){ form->
             Log.e(TAG,"form: $form")
             binding.tabLayout.visible(form.tabs.visibility)
             binding.navigationView.visible(form.navigation.visibility)
+            binding.pager.visible(form.pager.visibility)
             binding.navigationView.menu.findItem(R.id.item_add).isVisible = form.navigation.add
             binding.navigationView.menu.findItem(R.id.item_edit).isVisible = form.navigation.edit
             binding.navigationView.menu.findItem(R.id.item_delete).isVisible = form.navigation.delete

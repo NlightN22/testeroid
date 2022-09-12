@@ -1,11 +1,12 @@
 package space.active.testeroid.screens.useredit
 
 import space.active.testeroid.db.modelsdb.Users
+import space.active.testeroid.helpers.UiText
 
 sealed class UserEditUiState {
     object NewUser: UserEditUiState()
     object EditUser: UserEditUiState()
     object RestoreForm: UserEditUiState()
     object LastAdmin: UserEditUiState()
-    data class ErrorMessage (var msg: String): UserEditUiState()
+    class ShowError (val uiText: UiText): UserEditUiState()
 }

@@ -4,7 +4,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="error">Error fun %s is %s</string>
 
-    <string name="add_test">Add test item</string>
+    <string name="edit_test_list_add_test">Add test item</string>
     <string name="scrolldescription">Scroll into edit test</string>
     <string name="edit_test_title">Input you test here:</string>
     <string name="edit_variant_title">Variants:</string>
@@ -55,7 +55,9 @@
     <string name="test_submit">Submit</string>
     <string name="test_restart">restart</string>
     <string name="test_empty">Add test and press restart</string>
-    <string name="edit_user_select">Select User</string>
+    <string name="edit_user_button_select">Select User</string>
+    <string name="edit_test_list_title">Edit Tests</string>
+    <string name="edit_user_msg_select">%s selected</string>
 
 
 </resources>

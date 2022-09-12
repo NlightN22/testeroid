@@ -48,7 +48,7 @@ class ScoreFragment : Fragment() {
     }
 
     private fun externalData() {
-        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.userIdFlow.collect { userId ->
                 viewModel.uiState(ScoreUiState.UserScore(userId))
             }

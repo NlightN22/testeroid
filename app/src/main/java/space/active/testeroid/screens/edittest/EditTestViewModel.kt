@@ -16,8 +16,8 @@ class EditTestViewModel(
     private val repository: RepositoryRealization
 ): ViewModel() {
 
-    private val _uiState = MutableLiveData<EditTestUiState>(EditTestUiState.ShowNew)
-    val uiState: LiveData<EditTestUiState> = _uiState
+//    private val _uiState = MutableLiveData<EditTestUiState>(EditTestUiState.ShowNew)
+//    val uiState: LiveData<EditTestUiState> = _uiState
 
     private val _formState = MutableLiveData<EditTestFormState>(EditTestFormState())
     val formState: LiveData<EditTestFormState> = _formState

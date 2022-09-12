@@ -20,6 +20,8 @@ import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.edittest.EditTestFragment
+import space.active.testeroid.screens.main.MainActivityFormState
+import space.active.testeroid.screens.main.MainActivityUiState
 
 
 class EditTestListFragment : Fragment() {
@@ -111,17 +113,15 @@ class EditTestListFragment : Fragment() {
     }
 
     private fun showToolBar(){
-        viewModelMain.setViewState(MainActivityViewModel.ViewStateMain.BottomToolBar(true))
-        viewModelMain.setViewState(
-            MainActivityViewModel.ViewStateMain.BottomToolBarButtons(
-            add = false,
-            edit = true,
-            delete = true
+        viewModelMain.uiState(MainActivityUiState.ShowNavigation(
+            MainActivityFormState.Navigation(
+                add = false, edit = false, delete = true
+            )
         ))
     }
 
     private fun closeToolBar(){
-        viewModelMain.setViewState(MainActivityViewModel.ViewStateMain.BottomToolBar(false))
+        viewModelMain.uiState(MainActivityUiState.ShowTabs)
     }
 
     // TODO overcoding delete this fun

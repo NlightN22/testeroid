@@ -1,19 +1,16 @@
 package space.active.testeroid.screens.useredit
 
 import android.util.Log
-import androidx.datastore.dataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
+import space.active.testeroid.helpers.UiText
 import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.Repository
@@ -32,6 +29,13 @@ class UserEditViewModel(
 
     private val _terminateSignal = MutableSharedFlow<Boolean>()
     val terminateSignal: SharedFlow<Boolean> = _terminateSignal
+
+    private val _errorMsg = MutableSharedFlow<UiText>()
+    val errorMsg: SharedFlow<UiText> = _errorMsg
+
+    private val _adminList: Flow<List<Users>> = repository.allUsers()
+
+    // TODO add admin rights to edit another users. Lastadmin control. Create admin by admin
 
     fun uiState (state: UserEditUiState) {
         when (state) {
@@ -66,20 +70,17 @@ class UserEditViewModel(
             }
             is UserEditUiState.LastAdmin -> {
                 _formState.value?.let { form->
-                    viewModelScope.launch {
-                        repository.allUsers().collectLatest { list->
-                            if (list.size <= 1) {
-                                Log.e(TAG, "UserEditUiState.LastAdmin")
-                                form.adminEnabled = false
-                                form.administrator = true
-                                _formState.notifyObserver()
-                            }
-                        }
-                    }
-
+                    Log.e(TAG, "UserEditUiState.LastAdmin")
+                    form.adminEnabled = false
+                    form.administrator = true
+                    _formState.notifyObserver()
                 }
             }
-            is UserEditUiState.ErrorMessage -> {}
+            is UserEditUiState.ShowError -> {
+                viewModelScope.launch {
+                    _errorMsg.emit(state.uiText)
+                }
+            }
         }
     }
 
@@ -92,15 +93,35 @@ class UserEditViewModel(
                             viewModelScope.launch {
                                 _editedUser = repository.getUser(event.userId)
                                 uiState(UserEditUiState.EditUser)
+                                // Check For Last Admin
+                                _adminList.collectLatest { list->
+                                    val filtered = list.filter { it.userAdministrator }
+                                    if (filtered.size == 1 && filtered.any {users ->
+                                            users.userName == _editedUser.userName
+                                        })
+                                    {
+                                        Log.e(TAG, "_adminList $filtered")
+                                        uiState(UserEditUiState.LastAdmin)
+                                    }
+                                }
                             }
                         }?: run {
                             _editedUser = Users()
                             uiState(UserEditUiState.NewUser)
+                            // Check For Last Admin
+                            viewModelScope.launch {
+                                _adminList.collectLatest { list ->
+                                    val filtered = list.filter { it.userAdministrator }
+                                    if (filtered.isEmpty()) {
+                                        uiState(UserEditUiState.LastAdmin)
+                                    }
+                                }
+                            }
                         }
                     } else {
                         uiState(UserEditUiState.RestoreForm)
                     }
-                    uiState(UserEditUiState.LastAdmin)
+
                 }
             }
             is UserEditEvents.OnAdminCheckboxClick -> {
@@ -111,9 +132,11 @@ class UserEditViewModel(
                 _formState.notifyObserver()
             }
             is UserEditEvents.OnOkClick -> {
-                viewModelScope.launch {
-                    repository.addUser(_editedUser)
-                    _terminateSignal.emit(true)
+                if (validateForm()) {
+                    viewModelScope.launch {
+                        repository.addUser(_editedUser)
+                        _terminateSignal.emit(true)
+                    }
                 }
             }
             is UserEditEvents.OnCancelClick -> {
@@ -130,6 +153,9 @@ class UserEditViewModel(
             is UserEditEvents.OnSelectClick -> {
                 viewModelScope.launch {
                     dataStore.saveUserId(_editedUser.userId)
+                    uiState(UserEditUiState.ShowError(UiText.StringResource(
+                            R.string.edit_user_msg_select, _editedUser.userName
+                        )))
                 }
             }
             is UserEditEvents.OnEditUsername -> {
@@ -141,12 +167,25 @@ class UserEditViewModel(
         }
     }
 
-    fun isLastAdministrator(userList: List<Users>): Boolean {
-        val listAdmin = userList.filter { it.userAdministrator }
-        if (listAdmin.size <= 1) {
-            return true
-        }
-    return false
+    private fun validateForm(): Boolean {
+            if (_editedUser.userName.isNotEmpty()) {
+                if (!_editedUser.userAdministrator) {
+                    return true
+                } else if (_editedUser.userAdministrator) {
+                    if (_editedUser.userPassword.isNotEmpty()) {
+                        return true
+                    } else {
+                        uiState(UserEditUiState.ShowError(UiText.StringResource(
+                            R.string.edit_user_empty_password
+                        )))
+                    }
+                }
+            } else {
+                uiState(UserEditUiState.ShowError(UiText.StringResource(
+                    R.string.edit_user_empty_username
+                )))
+            }
+        return false
     }
 
     override fun onCleared() {
@@ -154,148 +193,6 @@ class UserEditViewModel(
         Log.e(TAG, "UserEditViewModel is cleared")
         super.onCleared()
     }
-
-// TODO add to Destroy                    _formState.value?.let { it.active = false }
-
-
-
-    private val _adminCheckBox = MutableLiveData(ViewState.AdminCheckBox())
-    val adminCheckBox: LiveData<ViewState.AdminCheckBox> = _adminCheckBox
-
-    private val _cancelEnabled = MutableLiveData(ViewState.CancelButton())
-    val cancelEnabled: LiveData<ViewState.CancelButton> = _cancelEnabled
-
-    private val _backButton = MutableLiveData(ViewState.BackButton())
-    val backButton: LiveData<ViewState.BackButton> = _backButton
-
-    private val _validateForm = MutableLiveData(ViewState.ValidateForm())
-    val validateForm: LiveData<ViewState.ValidateForm> = _validateForm
-
-    private val _currentUser = MutableLiveData<Users>()
-    val currentUser: LiveData<Users> = _currentUser
-
-    private val _toastMessage = MutableLiveData<Int>()
-    val toastMessage: LiveData<Int> = _toastMessage
-
-    private val _deleteUserEvent = MutableLiveData<Boolean>()
-    val deleteUserEvent: LiveData<Boolean> = _deleteUserEvent
-
-
-    fun setCurrentUser(user: Users){
-        _currentUser.value = user
-    }
-
-    fun blockLastAdministrator(userList: List<Users>){
-        // TODO add to main activity start this fragment if userList is Null
-        if (isLastAdministrator(userList)) {
-            // Checkbox Administrator is checked and not editable
-            elementsViewState(
-                ViewState.AdminCheckBox(
-                    visible = true,
-                    checkable = false,
-                    checked = true
-                )
-            )
-            // button_back change behavior for close app
-            elementsViewState(ViewState.BackButton(enabled = false))
-        }
-    }
-
-    fun elementsViewState(viewState: ViewState){
-        when(viewState) {
-            is ViewState.AdminCheckBox -> {
-                _adminCheckBox.value?.apply {
-                    visible = viewState.visible
-                    checkable = viewState.checkable
-                    checked = viewState.checked
-                }
-            }
-            is ViewState.BackButton -> {
-                _backButton.value?.enabled = viewState.enabled
-            }
-            is ViewState.CancelButton -> {
-                _cancelEnabled.value?.enabled = viewState.enabled
-            }
-            is ViewState.ValidateForm -> {
-                TODO()
-            }
-        }
-    }
-
-    fun validateAndSaveValues(userName: String, password: String, id: String){
-        // Control username and password is not empty
-        if (userName.isNotEmpty()) {
-            val user = Users(userName = userName, userPassword = password)
-            if (id.isNotEmpty()) { user.userId = id.toLong() }
-            _adminCheckBox.value?.let {
-                //control for admin. need password
-                if (it.checked) {
-                    user.userAdministrator = true
-                    if (password.isNotEmpty()) {
-                        saveCredentials(user)
-                        _validateForm.value!!.result = true
-                    } else {
-                        _validateForm.value!!.result = false
-                        _toastMessage.value = R.string.edit_user_empty_password
-                    }
-                } else {
-                    saveCredentials(user)
-                    _validateForm.value!!.result = true
-                }
-            }?: run {
-                val msg = "Error fun onOkClick _adminCheckBox.value is ${_adminCheckBox.value}"
-                Log.e(TAG, msg)
-                _validateForm.value!!.result = false
-//                _validateForm.value!!.message = msg
-            }
-        }else{
-            _validateForm.value!!.result = false
-            _toastMessage.value = R.string.edit_user_empty_username
-        }
-    }
-
-    //Send to Database
-    fun saveCredentials(user: Users){
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.addUser(user)
-        }
-    }
-
-   fun deleteCredentials(userList: List<Users>){
-       viewModelScope.launch(Dispatchers.IO) {
-           _currentUser.value?.let { user ->
-               if (isLastAdministrator(userList)) {
-                   _toastMessage.postValue(R.string.edit_user_last_admin)
-               } else  {
-                   repository.deleteUser(user)
-                   _deleteUserEvent.postValue(true)
-               }
-           }?: run {
-               Log.e(TAG, "Error, fun deleteCredentials _currentUser.value: ${_currentUser.value}")
-           }
-       }
-   }
-
-    sealed class ViewState{
-        data class AdminCheckBox(
-            var visible: Boolean = true,
-            var checkable: Boolean = true,
-            var checked: Boolean = false
-        ): ViewState()
-
-        data class CancelButton(
-            var enabled: Boolean = true
-        ): ViewState()
-
-        data class BackButton(
-            var enabled: Boolean = true
-        ): ViewState()
-
-        data class ValidateForm(
-            var result: Boolean = false,
-        ): ViewState()
-    }
-
 }
 
 

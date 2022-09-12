@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
@@ -84,14 +85,6 @@ class UserFragment : Fragment() {
     }
 
     private fun observers(adapter: RecyclerViewAdapter) {
-//        viewModel.userList.observe(viewLifecycleOwner) { list->
-//            Log.e(TAG, "userList $list")
-//            val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
-//            list.forEach { user ->
-//                listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
-//            }
-//            adapter.setList(listAdapter)
-//        }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.errorMsg.collectLatest {
@@ -102,7 +95,7 @@ class UserFragment : Fragment() {
 
 
         // NB need to start different coroutines for diff variables
-        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.userList.collectLatest { list->
                 Log.e(TAG, "userList $list")
                 val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
@@ -110,16 +103,15 @@ class UserFragment : Fragment() {
                     listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
                 }
                 adapter.setList(listAdapter)
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            viewModel.selectedUser.collectLatest {
-                Log.e(TAG, "selectedUser.collectLatest $it")
-                it?.let {
-                    adapter.setSelected(listOf(it))
+                viewModel.selectedUser.collectLatest {
+                    Log.e(TAG, "selectedUser.collectLatest $it")
+                    it?.let {
+                        adapter.setSelected(listOf(it))
+                    }
                 }
             }
         }
+
         viewModel.passwordDialogEvent.observe(viewLifecycleOwner) { userName ->
             inputPasswordDialog(userName)
         }
