@@ -35,44 +35,60 @@ class UserEditViewModel(
 
     private val _adminList: Flow<List<Users>> = repository.allUsers()
 
-    // TODO add admin rights to edit another users. Lastadmin control. Create admin by admin
-
     fun uiState (state: UserEditUiState) {
         when (state) {
+            is UserEditUiState.ViewUser -> {
+
+                _formState.value?.let { form->
+                    form.id = _editedUser.userId.toString()
+                    form.username.text = _editedUser.userName
+                    form.password.text = _editedUser.userPassword
+                    form.administrator.checked = _editedUser.userAdministrator
+
+                    form.username.enabled = false
+                    form.password.enabled = false
+                    form.administrator.enabled = false
+                    form.deleteEnabled = false
+
+                    _formState.notifyObserver()
+                }
+            }
             is UserEditUiState.NewUser -> {
                 _activeForm = true
                 _formState.value?.let { form->
                     form.deleteEnabled = false
                     form.selectedEnabled = false
+                    _formState.notifyObserver()
                 }
-                _formState.notifyObserver()
             }
             is UserEditUiState.EditUser -> {
                 _activeForm = true
                 _formState.value?.let { form ->
                     form.id = _editedUser.userId.toString()
-                    form.username = _editedUser.userName
-                    form.password = _editedUser.userPassword
-                    form.administrator = _editedUser.userAdministrator
+                    form.username.text = _editedUser.userName
+                    form.password.text = _editedUser.userPassword
+                    form.administrator.checked = _editedUser.userAdministrator
+                    form.username.enabled = true
+                    form.password.enabled = true
+                    form.administrator.enabled = true
                     form.deleteEnabled = true
-                    form.selectedEnabled = true
+                    _formState.notifyObserver()
                 }
-                _formState.notifyObserver()
             }
             is UserEditUiState.RestoreForm -> {
                 _formState.value?.let { form ->
                     form.id = _editedUser.userId.toString()
-                    form.username = _editedUser.userName
-                    form.password = _editedUser.userPassword
-                    form.administrator = _editedUser.userAdministrator
+                    form.username.text = _editedUser.userName
+                    form.password.text = _editedUser.userPassword
+                    form.administrator.checked = _editedUser.userAdministrator
+                    _formState.notifyObserver()
                 }
-                _formState.notifyObserver()
             }
             is UserEditUiState.LastAdmin -> {
                 _formState.value?.let { form->
                     Log.e(TAG, "UserEditUiState.LastAdmin")
-                    form.adminEnabled = false
-                    form.administrator = true
+                    form.administrator.enabled = false
+                    form.administrator.checked = true
                     _formState.notifyObserver()
                 }
             }
@@ -87,24 +103,27 @@ class UserEditViewModel(
     fun onEvent (event: UserEditEvents) {
         when (event) {
             is UserEditEvents.OpenFragment -> {
-                _formState.value?.let { form ->
+                _formState.value?.let {
                     if (!_activeForm) {
-                        event.userId?.let {
-                            viewModelScope.launch {
-                                _editedUser = repository.getUser(event.userId)
+                        event.userForEdit?.let { userForEdit ->
+                            _editedUser = userForEdit
+                            if (event.selectedAdmin) {
                                 uiState(UserEditUiState.EditUser)
-                                // Check For Last Admin
-                                _adminList.collectLatest { list->
-                                    val filtered = list.filter { it.userAdministrator }
-                                    if (filtered.size == 1 && filtered.any {users ->
-                                            users.userName == _editedUser.userName
-                                        })
-                                    {
-                                        Log.e(TAG, "_adminList $filtered")
-                                        uiState(UserEditUiState.LastAdmin)
-                                    }
+                            } else {
+                                uiState(UserEditUiState.ViewUser)
+                            }
+                        // Check For Last Admin
+                        viewModelScope.launch {
+                            _adminList.collectLatest { list ->
+                                val filtered = list.filter { it.userAdministrator }
+                                if (filtered.size == 1 && filtered.any { users ->
+                                        users.userName == _editedUser.userName
+                                    }) {
+                                    Log.e(TAG, "_adminList $filtered")
+                                    uiState(UserEditUiState.LastAdmin)
                                 }
                             }
+                        }
                         }?: run {
                             _editedUser = Users()
                             uiState(UserEditUiState.NewUser)
@@ -121,15 +140,15 @@ class UserEditViewModel(
                     } else {
                         uiState(UserEditUiState.RestoreForm)
                     }
-
                 }
             }
             is UserEditEvents.OnAdminCheckboxClick -> {
                 _formState.value?.let {form ->
-                    form.administrator = !form.administrator
-                    _editedUser.userAdministrator = form.administrator
+                    form.administrator.checked = !form.administrator.checked
+                    _editedUser.userAdministrator = form.administrator.checked
+                    _formState.notifyObserver()
+
                 }
-                _formState.notifyObserver()
             }
             is UserEditEvents.OnOkClick -> {
                 if (validateForm()) {
@@ -152,10 +171,11 @@ class UserEditViewModel(
             }
             is UserEditEvents.OnSelectClick -> {
                 viewModelScope.launch {
-                    dataStore.saveUserId(_editedUser.userId)
+                    dataStore.saveSelectedUser(_editedUser)
                     uiState(UserEditUiState.ShowError(UiText.StringResource(
                             R.string.edit_user_msg_select, _editedUser.userName
                         )))
+                    _terminateSignal.emit(true)
                 }
             }
             is UserEditEvents.OnEditUsername -> {

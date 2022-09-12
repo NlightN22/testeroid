@@ -92,5 +92,8 @@ interface TestsDao {
     @Query("SELECT * FROM Users WHERE userId = :userId")
     suspend fun getUser(userId: Long): Users
 
+    @Query("SELECT * FROM Users WHERE userId = :userId")
+    fun getUserFlow(userId: Long): Flow<Users>
+
     // Get end
 }

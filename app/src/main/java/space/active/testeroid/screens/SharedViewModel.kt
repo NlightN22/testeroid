@@ -5,15 +5,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import space.active.testeroid.TAG
+import space.active.testeroid.db.modelsdb.Users
 
 // Owner must be Main application
 class SharedViewModel: ViewModel() {
     // EditTestList -> EditTest
+
     private val _testForEdit = MutableLiveData<Long?>()
     val testForEdit: LiveData<Long?> get () = _testForEdit
 
-    private val _editedUser = MutableLiveData<Long?>()
-    val editedUser: LiveData<Long?> = _editedUser
+    private val _editedUser = MutableLiveData<Users?>()
+    val editedUser: LiveData<Users?> = _editedUser
 
     fun setTestForEdit(testId: Long){
         Log.e(TAG, "Set value testId: $testId")
@@ -26,15 +28,13 @@ class SharedViewModel: ViewModel() {
     }
     // EditTestList -> EditTest end
 
-    fun setUserForEdit(userId: Long) {
-        Log.e(TAG, "fun setUserForEdit _editedUser: $userId")
-        _editedUser.value = userId
+    fun setUserForEdit(user: Users) {
+        Log.e(TAG, "fun setUserForEdit _editedUser: $user")
+        _editedUser.value = user
     }
 
     fun clearUserForEdit(){
-        Log.e(TAG, "Clear value _editedUser")
+        Log.e(TAG, "clearUserForEdit")
         _editedUser.value = null
     }
-
-
 }

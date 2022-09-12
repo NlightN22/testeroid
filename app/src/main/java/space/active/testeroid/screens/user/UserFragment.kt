@@ -12,10 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.APP
 import space.active.testeroid.R
@@ -103,7 +101,7 @@ class UserFragment : Fragment() {
                     listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
                 }
                 adapter.setList(listAdapter)
-                viewModel.selectedUser.collectLatest {
+                viewModel.selectedUserId.collectLatest {
                     Log.e(TAG, "selectedUser.collectLatest $it")
                     it?.let {
                         adapter.setSelected(listOf(it))
@@ -117,7 +115,7 @@ class UserFragment : Fragment() {
         }
 
         viewModel.openEditUserEvent.observe(viewLifecycleOwner) { userForEdit ->
-            sharedViewModel.setUserForEdit(userForEdit.userId) // save id to share data
+            sharedViewModel.setUserForEdit(userForEdit) // save id to share data
             openFragment(UserEditFragment())
         }
     }

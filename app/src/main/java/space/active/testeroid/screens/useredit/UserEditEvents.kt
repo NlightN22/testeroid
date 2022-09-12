@@ -1,7 +1,9 @@
 package space.active.testeroid.screens.useredit
 
+import space.active.testeroid.db.modelsdb.Users
+
 sealed class UserEditEvents {
-    data class OpenFragment(val userId: Long?): UserEditEvents()
+    data class OpenFragment(val userForEdit: Users?, val selectedAdmin: Boolean): UserEditEvents()
     object OnOkClick: UserEditEvents()
     object OnCancelClick: UserEditEvents()
     object OnDeleteClick: UserEditEvents()

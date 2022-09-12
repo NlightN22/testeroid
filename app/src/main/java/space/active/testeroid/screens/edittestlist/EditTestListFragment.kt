@@ -152,23 +152,23 @@ class EditTestListFragment : Fragment() {
 
     private fun clickItemInAdapter(position: Int, testId: Long){
         Log.e(TAG,"clickItemInAdapter $position || $testId")
-        viewModelMain.bottomToolBarVisibility.value?.let {
-            if (!it) {
-                val fragmentManager = parentFragmentManager
-                val newFragment = EditTestFragment()
-                // Send data to EditTest
-                sharedViewModel.setTestForEdit(testId)
-                // Start new Fragment here
-                fragmentManager.commit {
-                    replace(R.id.frame_main, newFragment)
-                    addToBackStack(null)
-                    setReorderingAllowed(true)
-                }
-            }
-        } ?: run {
-            Log.e(TAG,
-                "Error private fun clickItemInAdapter bottomToolBarVisibility: ${viewModelMain.bottomToolBarVisibility.value}")
-        }
+//        viewModelMain.bottomToolBarVisibility.value?.let {
+//            if (!it) {
+//                val fragmentManager = parentFragmentManager
+//                val newFragment = EditTestFragment()
+//                // Send data to EditTest
+//                sharedViewModel.setTestForEdit(testId)
+//                // Start new Fragment here
+//                fragmentManager.commit {
+//                    replace(R.id.frame_main, newFragment)
+//                    addToBackStack(null)
+//                    setReorderingAllowed(true)
+//                }
+//            }
+//        } ?: run {
+//            Log.e(TAG,
+//                "Error private fun clickItemInAdapter bottomToolBarVisibility: ${viewModelMain.bottomToolBarVisibility.value}")
+//        }
     }
 
     private fun clickLongItemInAdapter(item: RecyclerViewAdapter.AdapterValues){

@@ -76,7 +76,8 @@
             android:maxLength="20"
             android:textColor="@color/dark_blue"
             android:textCursorDrawable="@drawable/ic_cursor_3dp"
-            android:textSize="@dimen/buttons_text_size" />
+            android:textSize="@dimen/buttons_text_size"
+            />
 
     </com.google.android.material.textfield.TextInputLayout>
 

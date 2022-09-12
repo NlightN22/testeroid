@@ -13,6 +13,7 @@ interface Repository {
     fun allUsers(): Flow<List<Users>>
     suspend fun addUser(user:Users)
     suspend fun getUser(userId: Long): Users
+    fun getUserFlow(userId: Long): Flow<Users>
     suspend fun getUserScore(userId: Long): Int
     suspend fun deleteUser(user: Users)
 

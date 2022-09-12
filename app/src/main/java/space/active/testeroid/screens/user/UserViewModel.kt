@@ -2,7 +2,6 @@ package space.active.testeroid.screens.user
 
 import android.util.Log
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import space.active.testeroid.R
@@ -18,7 +17,8 @@ class UserViewModel(
     private val dataStore: DataStoreRepository
     ): ViewModel() {
 
-    val selectedUser: Flow<Long?> = dataStore.userId
+    val selectedUserId: Flow<Long?> = dataStore.userId
+    val selectedUserAdmin: Flow<Boolean> = dataStore.admin
     val userList: Flow<List<Users>> = repository.allUsers()
 
     private val _passwordDialogEvent = SingleLiveEvent<String>()
@@ -36,8 +36,8 @@ class UserViewModel(
         when (state) {
             is UserUiState.SelectedUser -> {
                 viewModelScope.launch {
-                    Log.e(TAG, "state.userId: ${state.userId}")
-                    dataStore.saveUserId(state.userId)
+                    Log.e(TAG, "state.userId: ${state.user}")
+                    dataStore.saveSelectedUser(state.user)
                 }
             }
             is UserUiState.ShowError -> {
@@ -62,10 +62,13 @@ class UserViewModel(
         when (event) {
             is UserEvents.OnClickItem -> {
                 viewModelScope.launch {
-                    _userForEdit = repository.getUser(event.userId)
-                    if (_userForEdit.userPassword.isNotEmpty()) {
+                _userForEdit = repository.getUser(event.userId)
+                    val selected =  selectedUserAdmin.first()
+                    if (selected) {
+                        uiState(UserUiState.OpenUserEdit)
+                    } else if (_userForEdit.userPassword.isNotEmpty()) {
                         uiState(UserUiState.ShowInputPasswordDialog)
-                    } else {
+                    } else if (_userForEdit.userPassword.isNullOrEmpty()) {
                         uiState(UserUiState.OpenUserEdit)
                     }
                 }

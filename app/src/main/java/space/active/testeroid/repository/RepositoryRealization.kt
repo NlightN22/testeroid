@@ -22,6 +22,10 @@ class RepositoryRealization(private val dao: TestsDao): Repository {
         return dao.getUser(userId)
     }
 
+    override fun getUserFlow(userId: Long): Flow<Users> {
+        return dao.getUserFlow(userId)
+    }
+
     override suspend fun getUserScore(userId: Long): Int {
         return getUser(userId).score
     }

@@ -14,6 +14,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -71,9 +72,11 @@ class UserEditFragment : Fragment() {
     }
 
     private fun handleExternal() {
-        val editedUser = sharedViewModel.editedUser.value
-        viewModel.onEvent(UserEditEvents.OpenFragment(editedUser))
-        sharedViewModel.clearUserForEdit()
+        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+            val editedUser = sharedViewModel.editedUser.value
+            viewModel.onEvent(UserEditEvents.OpenFragment(editedUser, APP.viewModel.userAdminDataStore.first()))
+            sharedViewModel.clearUserForEdit()
+        }
     }
 
     private fun observers() {
@@ -84,15 +87,18 @@ class UserEditFragment : Fragment() {
             }
         }
 
-        viewModel.formState.observe(viewLifecycleOwner) { form->
+        viewModel.formState.observe (viewLifecycleOwner) { form->
             binding.textViewId.text = form.id
-            binding.editTextUsername.setText(form.username)
-            binding.editTextPassword.setText(form.password)
-            binding.checkBoxAdmin.isChecked = form.administrator
-            binding.checkBoxAdmin.isEnabled = form.adminEnabled
+            binding.editTextUsername.setText(form.username.text)
+            binding.editTextUsername.isEnabled = form.username.enabled
+            binding.editTextPassword.setText(form.password.text)
+            binding.editTextPassword.isEnabled = form.password.enabled
+            binding.checkBoxAdmin.isChecked = form.administrator.checked
+            binding.checkBoxAdmin.isEnabled = form.administrator.enabled
             binding.buttonDelete.isEnabled = form.deleteEnabled
             binding.buttonSelect.isEnabled = form.selectedEnabled
         }
+
         lifecycleScope.launchWhenResumed {
             viewModel.terminateSignal.collectLatest { terminate->
                 if (terminate) {
@@ -118,14 +124,17 @@ class UserEditFragment : Fragment() {
         binding.checkBoxAdmin.setOnClickListener {
             viewModel.onEvent(UserEditEvents.OnAdminCheckboxClick)
         }
-        binding.editTextUsername.addTextChangedListener {
-            it?.let {
-                viewModel.onEvent(UserEditEvents.OnEditUsername(it.toString()))
+
+        lifecycleScope.launchWhenResumed {
+            binding.editTextUsername.addTextChangedListener {
+                it?.let {
+                    viewModel.onEvent(UserEditEvents.OnEditUsername(it.toString()))
+                }
             }
-        }
-        binding.editTextPassword.addTextChangedListener {
-            it?.let {
-                viewModel.onEvent(UserEditEvents.OnEditPassword(it.toString()))
+            binding.editTextPassword.addTextChangedListener {
+                it?.let {
+                    viewModel.onEvent(UserEditEvents.OnEditPassword(it.toString()))
+                }
             }
         }
     }
