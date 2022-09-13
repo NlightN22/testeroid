@@ -16,7 +16,8 @@ import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentScoreBinding
 import space.active.testeroid.db.TestsDatabase
 import space.active.testeroid.repository.DataStoreRepository
-import space.active.testeroid.repository.RepositoryRealization
+import space.active.testeroid.repository.DataBaseRepositoryRealization
+import space.active.testeroid.repository.DataStoreRepositoryImplementation
 
 class ScoreFragment : Fragment() {
     lateinit var binding: FragmentScoreBinding
@@ -83,8 +84,8 @@ class ScoreFragment : Fragment() {
 class ScoreViewModelFactory(context: Context): ViewModelProvider.Factory {
 
     private val dao = TestsDatabase.getInstance(context).testsDao
-    private val repository: RepositoryRealization = RepositoryRealization(dao)
-    private val dataStore: DataStoreRepository = DataStoreRepository(context)
+    private val repository: DataBaseRepositoryRealization = DataBaseRepositoryRealization(dao)
+    private val dataStore: DataStoreRepository = DataStoreRepositoryImplementation(context)
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return ScoreViewModel(repository, dataStore) as T

@@ -71,7 +71,7 @@ class EditTestFragment : Fragment() {
         sharedViewModel.testForEdit.value?.let { testId ->
             lifecycleScope.launchWhenResumed {
             Log.e(TAG, "private fun externalData() sharedViewModel.testForEdit")
-            viewModel.uiState(EditTestViewModel.EditTestUiState.ShowIncome(testId))
+            viewModel.uiState(EditTestUiState.ShowIncome(testId))
             sharedViewModel.clearTestForEdit()
             }
         }

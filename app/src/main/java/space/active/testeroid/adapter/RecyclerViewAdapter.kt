@@ -18,14 +18,14 @@ class RecyclerViewAdapter(
 
     // Create interfaces for listen clicks start
     interface ItemClickListener {
-        fun onItemClick(values: AdapterValues)
-        fun onItemLongClick(values: AdapterValues)
+        fun onItemClick(values: AdapterItems)
+        fun onItemLongClick(values: AdapterItems)
     }
     // Create interfaces for listen clicks end
 
-    var listItems = emptyList<AdapterValues>()
+    var listItems = emptyList<AdapterItems>()
 
-    class AdapterValues(
+    class AdapterItems(
         val itemName: String,
         val itemId: Long,
         var position: Int = 0,
@@ -64,7 +64,7 @@ class RecyclerViewAdapter(
     }
 
     // Update RV and store list into listTests
-    fun setList(list: List<AdapterValues>){
+    fun setList(list: List<AdapterItems>){
         Log.e(TAG, "Start setList list.size: ${list.size}")
         listItems = list
         notifyDataSetChanged()
@@ -97,12 +97,12 @@ class RecyclerViewAdapter(
     }
 
     // It works when we need to send item in View and next ViewModel
-    private fun selectItemInViewModel(item: AdapterValues){
+    private fun selectItemInViewModel(item: AdapterItems){
         itemClickListener.onItemLongClick(item)
     }
 
     //It works when we not need process selected items in ViewModel. Not save selected if rotate screen
-    fun selectItemInAdapter(item: AdapterValues){
+    fun selectItemInAdapter(item: AdapterItems){
         item.selected = !item.selected
         notifyItemChanged(item.position)
     }

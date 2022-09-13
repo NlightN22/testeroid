@@ -90,12 +90,12 @@ class MainActivity : AppCompatActivity() {
         // Bottom visible state
         viewModel.form.observe(this){ form->
             Log.e(TAG,"form: $form")
-            binding.tabLayout.visible(form.tabs.visibility)
-            binding.navigationView.visible(form.navigation.visibility)
-            binding.pager.visible(form.pager.visibility)
             binding.navigationView.menu.findItem(R.id.item_add).isVisible = form.navigation.add
             binding.navigationView.menu.findItem(R.id.item_edit).isVisible = form.navigation.edit
             binding.navigationView.menu.findItem(R.id.item_delete).isVisible = form.navigation.delete
+            binding.tabLayout.visible(form.tabs.visibility)
+            binding.navigationView.visible(form.navigation.visibility)
+            binding.pager.visible(form.pager.visibility)
         }
 
 //        viewModel.bottomTabsVisibility.observe(this){

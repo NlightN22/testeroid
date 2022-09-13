@@ -10,10 +10,10 @@ import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.SingleLiveEvent
 import space.active.testeroid.helpers.UiText
 import space.active.testeroid.repository.DataStoreRepository
-import space.active.testeroid.repository.RepositoryRealization
+import space.active.testeroid.repository.DataBaseRepositoryRealization
 
 class UserViewModel(
-    private val repository: RepositoryRealization,
+    private val repository: DataBaseRepositoryRealization,
     private val dataStore: DataStoreRepository
     ): ViewModel() {
 

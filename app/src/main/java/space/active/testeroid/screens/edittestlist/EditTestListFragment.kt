@@ -7,9 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.commit
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -17,9 +21,9 @@ import space.active.testeroid.adapter.RecyclerViewAdapter
 import space.active.testeroid.databinding.FragmentEditTestListBinding
 import space.active.testeroid.db.modelsdb.Tests
 import space.active.testeroid.screens.SharedViewModel
+import space.active.testeroid.screens.edittest.EditTestFragment
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
-import space.active.testeroid.screens.edittest.EditTestFragment
 import space.active.testeroid.screens.main.MainActivityFormState
 import space.active.testeroid.screens.main.MainActivityUiState
 
@@ -69,30 +73,40 @@ class EditTestListFragment : Fragment() {
         // Connect to adapter interface for realization onClick
         adapter = RecyclerViewAdapter(
             object : RecyclerViewAdapter.ItemClickListener{
-                override fun onItemClick(item: RecyclerViewAdapter.AdapterValues) {
+                override fun onItemClick(item: RecyclerViewAdapter.AdapterItems) {
                     val position = item.position
                     val itemId = item.itemId
                     clickItemInAdapter(position, itemId)
                 }
 
-                override fun onItemLongClick(item: RecyclerViewAdapter.AdapterValues) {
+                override fun onItemLongClick(item: RecyclerViewAdapter.AdapterItems) {
                     clickLongItemInAdapter(item)
                 }
             }
         )
         recyclerView.adapter = adapter
 
+        handleExternal()
+        observers()
+        listeners()
+    }
+
+    private fun handleExternal() {
+
+    }
+
+    private fun observers() {
         // Get data from View Model
         viewModel.allTests.observe(viewLifecycleOwner) {listTest ->
-            val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
+            val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterItems>()
             listTest.forEach { test ->
-                listAdapter.add(RecyclerViewAdapter.AdapterValues(itemName = test.testName, itemId = test.testId))
+                listAdapter.add(RecyclerViewAdapter.AdapterItems(itemName = test.testName, itemId = test.testId))
             }
             adapter.setList(listAdapter)
         }
 
         viewModel.selectedTestsList.observe(viewLifecycleOwner) {
-            list ->
+                list ->
             Log.e(TAG, "viewModel.selectedTestsList.observe $list")
             if (list.size > 0) {
                 sendItemsToAdapter(list)
@@ -107,8 +121,62 @@ class EditTestListFragment : Fragment() {
             onClickDelete()
         }
 
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.newModalFragment.collectLatest { fragment ->
+                    Log.e(TAG, "Click to ADD")
+                    startEditTestFragment(null)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.testForEdit.collectLatest { testId ->
+                    Log.e(TAG, "Click to Item: $testId")
+                    startEditTestFragment(testId)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.formState.collectLatest {
+                    when (it) {
+                        EditTestListUiState.SelectedItem ->
+                            viewModelMain.uiState(
+                                MainActivityUiState.ShowNavigation(
+                                    MainActivityFormState.Navigation(
+                                        delete = true
+                                    )
+                                )
+                            )
+                        EditTestListUiState.NotSelectedItem ->
+                        viewModelMain.uiState(MainActivityUiState.ShowTabs)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startEditTestFragment(testId: Long?) {
+        testId?.let {
+            sharedViewModel.setTestForEdit(it)
+        }
+        val fragmentManager = parentFragmentManager
+        val newFragment = EditTestFragment()
+
+        // Start new Fragment here
+        fragmentManager.commit {
+            replace(R.id.frame_main, newFragment)
+            addToBackStack(null)
+            setReorderingAllowed(true)
+        }
+    }
+
+    private fun listeners() {
         binding.fbAddTest.setOnClickListener {
-            onClickAdd()
+            viewModel.onEvent(EditTestListEvents.OnAddClick)
         }
     }
 
@@ -129,50 +197,20 @@ class EditTestListFragment : Fragment() {
         val selectedList: List<Long> = list.map { it.testId }
         Log.e(TAG,"setSelected selectedList: $selectedList")
         adapter.setSelected(selectedList)
-//        selectedList.forEach {
-//            adapter.setSelected(it)
-//        }
     }
 
     private fun onClickDelete(){
         Log.e(TAG, "Click to Delete")
-        viewModel.deleteTestsWithQuestions()
-    }
-
-    private fun onClickAdd(){
-        Log.e(TAG, "Click to ADD")
-        val fragmentManager = APP.supportFragmentManager
-        val newFragment = EditTestFragment()
-        fragmentManager.commit {
-            replace(R.id.main_container, newFragment)
-            addToBackStack(null)
-            setReorderingAllowed(true)
-        }
+        viewModel.onEvent(EditTestListEvents.OnDeleteClick)
     }
 
     private fun clickItemInAdapter(position: Int, testId: Long){
         Log.e(TAG,"clickItemInAdapter $position || $testId")
-//        viewModelMain.bottomToolBarVisibility.value?.let {
-//            if (!it) {
-//                val fragmentManager = parentFragmentManager
-//                val newFragment = EditTestFragment()
-//                // Send data to EditTest
-//                sharedViewModel.setTestForEdit(testId)
-//                // Start new Fragment here
-//                fragmentManager.commit {
-//                    replace(R.id.frame_main, newFragment)
-//                    addToBackStack(null)
-//                    setReorderingAllowed(true)
-//                }
-//            }
-//        } ?: run {
-//            Log.e(TAG,
-//                "Error private fun clickItemInAdapter bottomToolBarVisibility: ${viewModelMain.bottomToolBarVisibility.value}")
-//        }
+        viewModel.onEvent(EditTestListEvents.OnItemClick(testId))
     }
 
-    private fun clickLongItemInAdapter(item: RecyclerViewAdapter.AdapterValues){
+    private fun clickLongItemInAdapter(item: RecyclerViewAdapter.AdapterItems){
         Log.e(TAG,"clickLongItemInAdapter item.itemId ${item.itemId} item.position ${item.position}")
-        viewModel.selectListItem(item.itemId)
+        viewModel.onEvent(EditTestListEvents.OnItemLongClick(item.itemId))
     }
 }

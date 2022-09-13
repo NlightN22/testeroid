@@ -13,10 +13,10 @@ import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.UiText
 import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.DataStoreRepository
-import space.active.testeroid.repository.Repository
+import space.active.testeroid.repository.DataBaseRepository
 
 class UserEditViewModel(
-    private val repository: Repository,
+    private val dataBaseRepository: DataBaseRepository,
     private val dataStore: DataStoreRepository
     ): ViewModel() {
 
@@ -33,7 +33,7 @@ class UserEditViewModel(
     private val _errorMsg = MutableSharedFlow<UiText>()
     val errorMsg: SharedFlow<UiText> = _errorMsg
 
-    private val _adminList: Flow<List<Users>> = repository.allUsers()
+    private val _adminList: Flow<List<Users>> = dataBaseRepository.allUsers()
 
     fun uiState (state: UserEditUiState) {
         when (state) {
@@ -107,10 +107,13 @@ class UserEditViewModel(
                     if (!_activeForm) {
                         event.userForEdit?.let { userForEdit ->
                             _editedUser = userForEdit
-                            if (event.selectedAdmin) {
-                                uiState(UserEditUiState.EditUser)
-                            } else {
-                                uiState(UserEditUiState.ViewUser)
+                            viewModelScope.launch {
+                                val selectedAdmin: Boolean = dataStore.admin.first()
+                                if (selectedAdmin) {
+                                    uiState(UserEditUiState.EditUser)
+                                } else {
+                                    uiState(UserEditUiState.ViewUser)
+                                }
                             }
                         // Check For Last Admin
                         viewModelScope.launch {
@@ -153,7 +156,7 @@ class UserEditViewModel(
             is UserEditEvents.OnOkClick -> {
                 if (validateForm()) {
                     viewModelScope.launch {
-                        repository.addUser(_editedUser)
+                        dataBaseRepository.addUser(_editedUser)
                         _terminateSignal.emit(true)
                     }
                 }
@@ -165,7 +168,7 @@ class UserEditViewModel(
             }
             is UserEditEvents.OnDeleteClick -> {
                 viewModelScope.launch {
-                    repository.deleteUser(_editedUser)
+                    dataBaseRepository.deleteUser(_editedUser)
                     _terminateSignal.emit(true)
                 }
             }

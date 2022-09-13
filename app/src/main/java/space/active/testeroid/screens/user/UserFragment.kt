@@ -23,7 +23,8 @@ import space.active.testeroid.databinding.EditTextInputPasswordBinding
 import space.active.testeroid.databinding.FragmentUserBinding
 import space.active.testeroid.db.TestsDatabase
 import space.active.testeroid.repository.DataStoreRepository
-import space.active.testeroid.repository.RepositoryRealization
+import space.active.testeroid.repository.DataBaseRepositoryRealization
+import space.active.testeroid.repository.DataStoreRepositoryImplementation
 import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
@@ -65,12 +66,12 @@ class UserFragment : Fragment() {
         val recyclerView: RecyclerView = binding.recyclerView
         val adapter = RecyclerViewAdapter(
             object : RecyclerViewAdapter.ItemClickListener{
-                override fun onItemClick(values: RecyclerViewAdapter.AdapterValues) {
+                override fun onItemClick(values: RecyclerViewAdapter.AdapterItems) {
                     val userId = values.itemId
                     onItemClick(userId)
                 }
 
-                override fun onItemLongClick(values: RecyclerViewAdapter.AdapterValues) {
+                override fun onItemLongClick(values: RecyclerViewAdapter.AdapterItems) {
                     val userId = values.itemId
                     onItemLongClick(userId)
                 }
@@ -96,9 +97,9 @@ class UserFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.userList.collectLatest { list->
                 Log.e(TAG, "userList $list")
-                val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterValues>()
+                val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterItems>()
                 list.forEach { user ->
-                    listAdapter.add(RecyclerViewAdapter.AdapterValues(user.userName, user.userId))
+                    listAdapter.add(RecyclerViewAdapter.AdapterItems(user.userName, user.userId))
                 }
                 adapter.setList(listAdapter)
                 viewModel.selectedUserId.collectLatest {
@@ -195,8 +196,8 @@ class UserFragment : Fragment() {
 class UserViewModelFactory(context: Context): ViewModelProvider.Factory {
 
     private val dao = TestsDatabase.getInstance(context).testsDao
-    private val repository: RepositoryRealization = RepositoryRealization(dao)
-    private val dataStore: DataStoreRepository = DataStoreRepository(context)
+    private val repository: DataBaseRepositoryRealization = DataBaseRepositoryRealization(dao)
+    private val dataStore: DataStoreRepository = DataStoreRepositoryImplementation(context)
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return UserViewModel(repository, dataStore) as T

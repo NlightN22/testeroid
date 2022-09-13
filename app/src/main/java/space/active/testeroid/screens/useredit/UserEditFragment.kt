@@ -74,7 +74,7 @@ class UserEditFragment : Fragment() {
     private fun handleExternal() {
         viewLifecycleOwner.lifecycleScope.launchWhenCreated {
             val editedUser = sharedViewModel.editedUser.value
-            viewModel.onEvent(UserEditEvents.OpenFragment(editedUser, APP.viewModel.userAdminDataStore.first()))
+            viewModel.onEvent(UserEditEvents.OpenFragment(editedUser))
             sharedViewModel.clearUserForEdit()
         }
     }

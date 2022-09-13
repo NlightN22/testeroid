@@ -6,19 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.DataStoreRepository
-import space.active.testeroid.repository.Repository
+import space.active.testeroid.repository.DataBaseRepository
 
 
 class ScoreViewModel(
-    private val repository: Repository,
+    private val dataBaseRepository: DataBaseRepository,
     private val dataStore: DataStoreRepository
     ): ViewModel() {
 
@@ -36,7 +34,7 @@ class ScoreViewModel(
                 Log.e(TAG, "selectedUserId: $selectedUserId ")
                 selectedUserId?.let {
                     viewModelScope.launch {
-                        _currentUser = repository.getUser(selectedUserId)
+                        _currentUser = dataBaseRepository.getUser(selectedUserId)
                         _formState.value?.let { form ->
                             form.title = true
                             form.username = _currentUser.userName.uppercase()

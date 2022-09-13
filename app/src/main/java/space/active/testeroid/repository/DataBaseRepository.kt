@@ -7,7 +7,7 @@ import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
 import kotlinx.coroutines.flow.Flow
 
-interface Repository {
+interface DataBaseRepository {
 
     // User
     fun allUsers(): Flow<List<Users>>

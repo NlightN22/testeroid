@@ -1,7 +1,6 @@
 package space.active.testeroid.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import space.active.testeroid.db.dao.TestsDao
 import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
@@ -9,7 +8,7 @@ import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
 import kotlinx.coroutines.flow.Flow
 
-class RepositoryRealization(private val dao: TestsDao): Repository {
+class DataBaseRepositoryRealization(private val dao: TestsDao): DataBaseRepository {
     override fun allUsers(): Flow<List<Users>> {
         return dao.getAllUsers()
     }

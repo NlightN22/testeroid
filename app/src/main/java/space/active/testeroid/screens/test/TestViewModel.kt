@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import space.active.testeroid.R
 import space.active.testeroid.TAG
-import space.active.testeroid.repository.RepositoryRealization
+import space.active.testeroid.repository.DataBaseRepositoryRealization
 import space.active.testeroid.db.relations.TestWithQuestions
 import space.active.testeroid.helpers.UiText
 import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.DataStoreRepository
 
 class TestViewModel(
-    val repository: RepositoryRealization,
+    val repository: DataBaseRepositoryRealization,
     val dataStore: DataStoreRepository
 ): ViewModel() {
 
@@ -98,7 +98,7 @@ class TestViewModel(
             }
             is TestUiState.ShowNext -> {
                 updateVariants()
-                _formState.value?.let { form->
+                _formState.value?.let {
                     _currentList.let { list ->
                         if (_count >= list.lastIndex) {
                             Log.e(TAG,"Finish")
