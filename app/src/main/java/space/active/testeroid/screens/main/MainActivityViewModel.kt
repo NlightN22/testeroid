@@ -81,10 +81,13 @@ class MainActivityViewModel(
             if (first) {
                 dataStore.saveCorrectScore(10)
                 dataStore.saveNotCorrectScore(10)
-                repository.addUser(Users(
+                val firstUser = Users(
+                    userId = 1L,
                     userName = "admin",
                     userAdministrator = true,
-                ))
+                )
+                dataStore.saveSelectedUser(firstUser)
+                repository.addUser(firstUser)
                 repository.addNewTestWithQuestions(
                     Tests(testName = "Demonstration test. Please select the correct answer."),
                     listOf(
