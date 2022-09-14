@@ -44,7 +44,6 @@ class UserEditViewModel(
                     form.username.text = _editedUser.userName
                     form.password.text = _editedUser.userPassword
                     form.administrator.checked = _editedUser.userAdministrator
-
                     form.username.enabled = false
                     form.password.enabled = false
                     form.administrator.enabled = false
@@ -56,6 +55,11 @@ class UserEditViewModel(
             is UserEditUiState.NewUser -> {
                 _activeForm = true
                 _formState.value?.let { form->
+                    form.username.enabled = true
+                    form.password.enabled = true
+                    form.administrator.enabled = true
+                    form.okEnabled = true
+                    form.selectedEnabled = true
                     form.deleteEnabled = false
                     form.selectedEnabled = false
                     _formState.notifyObserver()
@@ -70,6 +74,7 @@ class UserEditViewModel(
                     form.administrator.checked = _editedUser.userAdministrator
                     form.username.enabled = true
                     form.password.enabled = true
+                    form.okEnabled = true
                     form.administrator.enabled = true
                     form.deleteEnabled = true
                     _formState.notifyObserver()
@@ -92,6 +97,7 @@ class UserEditViewModel(
                     form.administrator.checked = _editedUser.userAdministrator
                     form.username.enabled = true
                     form.password.enabled = true
+                    form.okEnabled = true
                     form.deleteEnabled = false
                     _formState.notifyObserver()
                 }
@@ -114,7 +120,11 @@ class UserEditViewModel(
                             viewModelScope.launch {
                                 val selectedAdmin: Boolean = dataStore.admin.first()
                                 if (selectedAdmin) {
-                                    uiState(UserEditUiState.EditUser)
+                                    if (_editedUser.userId == 0L) {
+                                        uiState(UserEditUiState.NewUser)
+                                    } else {
+                                        uiState(UserEditUiState.EditUser)
+                                    }
                                 } else {
                                     uiState(UserEditUiState.ViewUser)
                                 }
@@ -161,7 +171,8 @@ class UserEditViewModel(
                 if (validateForm()) {
                     viewModelScope.launch {
                         dataBaseRepository.addUser(_editedUser)
-                        _terminateSignal.emit(true)
+                        onEvent(UserEditEvents.OnSelectClick)
+//                        _terminateSignal.emit(true)
                     }
                 }
             }
@@ -179,6 +190,7 @@ class UserEditViewModel(
             is UserEditEvents.OnSelectClick -> {
                 viewModelScope.launch {
                     dataStore.saveSelectedUser(_editedUser)
+                    Log.e(TAG, "OnSelectClick saveSelectedUser: $_editedUser")
                     uiState(UserEditUiState.ShowError(UiText.StringResource(
                             R.string.edit_user_msg_select, _editedUser.userName
                         )))

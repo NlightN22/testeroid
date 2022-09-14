@@ -8,9 +8,11 @@ interface DataStoreRepository {
     val admin: Flow<Boolean>
     val correctScore: Flow<Int>
     val notCorrectScore: Flow<Int>
+    val firstStart: Flow<Boolean>
 
     suspend fun saveSelectedUser(user: Users)
     suspend fun saveCorrectScore(score: Int)
     suspend fun saveNotCorrectScore(score: Int)
+    suspend fun saveFirstStart(first: Boolean)
     suspend fun clearDataStore()
 }

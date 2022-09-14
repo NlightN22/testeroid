@@ -33,7 +33,7 @@ class EditTestListViewModel(
     private val _selectedTestsList = MutableLiveData<ArrayList<Tests>>(arrayListOf()) // Important to create zero size array
     val selectedTestsList: LiveData<ArrayList<Tests>> get() = _selectedTestsList
 
-    val allTests: LiveData<List<Tests>> = repository.getAllTests()
+    val allTests: Flow<List<Tests>> = repository.getAllTests()
 
     private val _newModalFragment = MutableSharedFlow<Fragment>()
     val newModalFragment: SharedFlow<Fragment> = _newModalFragment

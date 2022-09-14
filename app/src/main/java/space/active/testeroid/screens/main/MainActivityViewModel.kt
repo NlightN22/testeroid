@@ -1,16 +1,27 @@
 package space.active.testeroid.screens.main
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import space.active.testeroid.DATA_BASE_NAME
+import space.active.testeroid.TAG
+import space.active.testeroid.db.modelsdb.Questions
+import space.active.testeroid.db.modelsdb.Tests
+import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.SingleLiveEvent
 import space.active.testeroid.helpers.notifyObserver
+import space.active.testeroid.repository.DataBaseRepository
 import space.active.testeroid.repository.DataStoreRepository
 
 class MainActivityViewModel(
+    private val repository: DataBaseRepository,
     private val dataStore: DataStoreRepository
     ): ViewModel() {
 
@@ -59,6 +70,31 @@ class MainActivityViewModel(
                     it.navigation.visibility = false
                     _form.notifyObserver()
                 }
+            }
+        }
+    }
+
+    fun isFirstStart(){
+        viewModelScope.launch {
+            Log.e(TAG, "isFirstStart")
+            val first = dataStore.firstStart.first()
+            if (first) {
+                dataStore.saveCorrectScore(10)
+                dataStore.saveNotCorrectScore(10)
+                repository.addUser(Users(
+                    userName = "admin",
+                    userAdministrator = true,
+                ))
+                repository.addNewTestWithQuestions(
+                    Tests(testName = "Demonstration test. Please select the correct answer."),
+                    listOf(
+                        Questions(questionId = 0, questionName = "Correct", correctAnswer = true),
+                        Questions(questionId = 0, questionName = "NotCorrect", correctAnswer = false),
+                        Questions(questionId = 0, questionName = "NotCorrect", correctAnswer = false),
+                        Questions(questionId = 0, questionName = "NotCorrect", correctAnswer = false),
+                    )
+                )
+                dataStore.saveFirstStart(false)
             }
         }
     }

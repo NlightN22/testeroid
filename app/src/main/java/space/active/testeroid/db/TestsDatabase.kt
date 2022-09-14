@@ -41,6 +41,4 @@ abstract class TestsDatabase: RoomDatabase() {
             }
         }
     }
-
-
 }

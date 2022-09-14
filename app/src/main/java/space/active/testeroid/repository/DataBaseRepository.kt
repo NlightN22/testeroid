@@ -19,7 +19,7 @@ interface DataBaseRepository {
     suspend fun deleteUser(user: Users)
 
     // Test
-    fun getAllTests():LiveData<List<Tests>>
+    fun getAllTests():Flow<List<Tests>>
     suspend fun addNewTestWithQuestions(test: Tests, questions: List<Questions>)
     suspend fun getTest(testId: Long): Tests
 

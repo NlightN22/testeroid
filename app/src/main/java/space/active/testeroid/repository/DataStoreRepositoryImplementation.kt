@@ -16,6 +16,7 @@ const val SELECTED_USER = "userId"
 const val SELECTED_ADMINISTRATOR = "userAdmin"
 const val CORRECT_SCORE = "correctScore"
 const val NOT_CORRECT_SCORE = "notCorrectScore"
+const val FIRST_START = "firstStart"
 
 class DataStoreRepositoryImplementation(context: Context): DataStoreRepository {
     private val dataStore: DataStore<Preferences> = context.dataStore
@@ -25,6 +26,7 @@ class DataStoreRepositoryImplementation(context: Context): DataStoreRepository {
         val admin = booleanPreferencesKey(SELECTED_ADMINISTRATOR)
         val correctScore = intPreferencesKey(CORRECT_SCORE)
         val notCorrectScore = intPreferencesKey(NOT_CORRECT_SCORE)
+        val firstStart = booleanPreferencesKey(FIRST_START)
     }
 
     private suspend fun saveUserId(userId: Long){
@@ -82,6 +84,12 @@ class DataStoreRepositoryImplementation(context: Context): DataStoreRepository {
         }
     }
 
+    override suspend fun saveFirstStart(first: Boolean) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.firstStart] = first
+        }
+    }
+
     override val notCorrectScore: Flow<Int> = dataStore.data
         .catch { exception->
             exceptionHandling(exception)
@@ -89,6 +97,14 @@ class DataStoreRepositoryImplementation(context: Context): DataStoreRepository {
         }
         .map { preference ->
             preference[PreferenceKeys.notCorrectScore] ?: 0
+        }
+    override val firstStart: Flow<Boolean> = dataStore.data
+        .catch { exception->
+            exceptionHandling(exception)
+            emit(emptyPreferences())
+        }
+        .map { preference ->
+            preference[PreferenceKeys.firstStart] ?: true
         }
 
     private fun exceptionHandling(exception: Throwable){

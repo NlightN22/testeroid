@@ -13,18 +13,19 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.collectLatest
-import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentEditTestBinding
 import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityUiState
+import space.active.testeroid.screens.main.MainActivityViewModel
 
 class EditTestFragment : Fragment() {
     lateinit var binding: FragmentEditTestBinding
     lateinit var viewModel: EditTestViewModel
 //    lateinit var viewModelEditList: EditTestListViewModel
     lateinit var sharedViewModel: SharedViewModel
+    lateinit var activityViewModel: MainActivityViewModel
 
     private var listEditVariant = listOf<EditText>()
     private var listOfAllEdits = arrayListOf<EditText>()
@@ -36,15 +37,16 @@ class EditTestFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentEditTestBinding.inflate(layoutInflater, container, false)
-        viewModel = ViewModelProvider(this, EditTestViewModelFactory(APP.applicationContext))
+        viewModel = ViewModelProvider(this, EditTestViewModelFactory(this.requireContext()))
             .get(EditTestViewModel::class.java)
         sharedViewModel = ViewModelProvider(this.requireActivity()).get(SharedViewModel::class.java)
+        activityViewModel = ViewModelProvider(this.requireActivity()).get(MainActivityViewModel::class.java)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        APP.viewModel.uiState(MainActivityUiState.ShowModalFragment)
+        activityViewModel.uiState(MainActivityUiState.ShowModalFragment)
         init()
     }
 
@@ -150,7 +152,7 @@ class EditTestFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        APP.viewModel.uiState(MainActivityUiState.CloseModalFragment)
+        activityViewModel.uiState(MainActivityUiState.CloseModalFragment)
         super.onDestroy()
     }
 }

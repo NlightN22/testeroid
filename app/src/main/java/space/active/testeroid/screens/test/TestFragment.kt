@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentTestBinding
@@ -23,7 +22,7 @@ class TestFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.e(TAG, "TestFragment created")
-        viewModel = ViewModelProvider(APP, TestViewModelFactory(APP.applicationContext)).get(
+        viewModel = ViewModelProvider(this, TestViewModelFactory(this.requireContext())).get(
             TestViewModel::class.java)
     }
 

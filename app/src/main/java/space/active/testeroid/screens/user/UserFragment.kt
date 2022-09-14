@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collectLatest
-import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.adapter.RecyclerViewAdapter
@@ -28,6 +27,7 @@ import space.active.testeroid.repository.DataStoreRepositoryImplementation
 import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
+import space.active.testeroid.screens.useredit.UserEditEvents
 import space.active.testeroid.screens.useredit.UserEditFragment
 
 class UserFragment : Fragment() {
@@ -92,7 +92,6 @@ class UserFragment : Fragment() {
             }
         }
 
-
         // NB need to start different coroutines for diff variables
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.userList.collectLatest { list->
@@ -124,7 +123,8 @@ class UserFragment : Fragment() {
     private fun listeners() {
         binding.fbAddItem.setOnClickListener {
             Log.e(TAG, "Click to ADD")
-            openFragment(UserEditFragment())
+            viewModel.onEvent(UserViewModel.UserEvents.OnAddClick)
+//            openFragment(UserEditFragment())
         }
     }
 
@@ -137,29 +137,9 @@ class UserFragment : Fragment() {
         viewModel.onEvent(UserViewModel.UserEvents.OnLongClickItem(userId))
     }
 
-
-//    private fun openEditFragment(userId: Long = 0){
-//        // ask password if it is
-//        if (userId > 0) {
-////            Log.e(TAG, "setUserForEdit userId: $userId")
-//            viewModel.setUserForEdit(userId)
-//
-//            viewModel.passwordCheckResult.observe(viewLifecycleOwner) { result ->
-//                if (result == UserViewModel.CheckState.Ok) {
-//                    openFragment(UserEditFragment())
-//                }
-//                else if (result == UserViewModel.CheckState.NotOk) {
-//                    toastMessage(getString(R.string.user_toast_wrong_password))
-//                }
-//            }
-//        } else {
-//            openFragment(UserEditFragment())
-//        }
-//    }
-
     private fun openFragment(newFragment: Fragment){
 
-        val fragmentManager = APP.supportFragmentManager
+        val fragmentManager =  this.requireActivity().supportFragmentManager
         fragmentManager.commit {
             replace(R.id.main_container, newFragment)
             addToBackStack(null)

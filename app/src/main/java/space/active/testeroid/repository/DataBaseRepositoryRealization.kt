@@ -43,7 +43,7 @@ class DataBaseRepositoryRealization(private val dao: TestsDao): DataBaseReposito
         dao.deleteUser(user)
     }
 
-    override fun getAllTests(): LiveData<List<Tests>> {
+    override fun getAllTests(): Flow<List<Tests>> {
         return dao.getAllTestsOnly()
     }
 

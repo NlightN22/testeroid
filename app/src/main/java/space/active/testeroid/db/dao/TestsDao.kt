@@ -84,7 +84,7 @@ interface TestsDao {
 
     @Transaction
     @Query("SELECT * FROM Tests")
-    fun getAllTestsOnly(): LiveData<List<Tests>>
+    fun getAllTestsOnly(): Flow<List<Tests>>
 
     @Query("SELECT * FROM Users")
     fun getAllUsers(): Flow<List<Users>>

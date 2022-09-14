@@ -14,7 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.adapter.RecyclerViewAdapter
@@ -41,12 +40,12 @@ class EditTestListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         Log.e(TAG, "EditTestListFragment created")
         viewModel = ViewModelProvider(requireActivity(),
-            EditTestListViewModelFactory(APP.applicationContext)
+            EditTestListViewModelFactory(this.requireContext())
         )
             .get(EditTestListViewModel::class.java)
         viewModelMain = ViewModelProvider(
             requireActivity(),
-            MainActivityViewModelFactory(APP.applicationContext)
+            MainActivityViewModelFactory(this.requireContext())
         )
             .get(MainActivityViewModel::class.java)
         sharedViewModel = ViewModelProvider(this.requireActivity()).get(SharedViewModel::class.java)
@@ -97,12 +96,17 @@ class EditTestListFragment : Fragment() {
 
     private fun observers() {
         // Get data from View Model
-        viewModel.allTests.observe(viewLifecycleOwner) {listTest ->
-            val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterItems>()
-            listTest.forEach { test ->
-                listAdapter.add(RecyclerViewAdapter.AdapterItems(itemName = test.testName, itemId = test.testId))
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.allTests.collectLatest { listTest ->
+                    val listAdapter = arrayListOf<RecyclerViewAdapter.AdapterItems>()
+                    listTest.forEach { test ->
+                        listAdapter.add(RecyclerViewAdapter.AdapterItems(itemName = test.testName, itemId = test.testId))
+                    }
+                    adapter.setList(listAdapter)
+                }
             }
-            adapter.setList(listAdapter)
         }
 
         viewModel.selectedTestsList.observe(viewLifecycleOwner) {

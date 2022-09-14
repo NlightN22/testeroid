@@ -15,14 +15,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import space.active.testeroid.APP
 import space.active.testeroid.DATA_STORE_NAME
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.adapter.PageAdapter
 import space.active.testeroid.databinding.ActivityMainBinding
 import space.active.testeroid.screens.useredit.UserEditViewModel
-import space.active.testeroid.screens.useredit.UserEditViewModelFactory
 
 
 // At the top level of your kotlin file for the one instance of DataStore
@@ -31,21 +29,17 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DAT
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MainActivityViewModel
-    lateinit var viewModelUserEdit: UserEditViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e(TAG,"MainActivity created")
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        APP = this
         viewModel = ViewModelProvider(this, MainActivityViewModelFactory(this)).get(
             MainActivityViewModel::class.java)
-
-        viewModelUserEdit = ViewModelProvider(this, UserEditViewModelFactory(this)).get(
-            UserEditViewModel::class.java)
 
         init()
     }
@@ -71,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleExternalData() {
-
+        viewModel.isFirstStart()
     }
 
     private fun BottomNavigationView.visible (value: Boolean) {
@@ -97,20 +91,6 @@ class MainActivity : AppCompatActivity() {
             binding.navigationView.visible(form.navigation.visibility)
             binding.pager.visible(form.pager.visibility)
         }
-
-//        viewModel.bottomTabsVisibility.observe(this){
-//            binding.tabLayout.visibility = if (it) {View.VISIBLE} else {View.INVISIBLE}
-//        }
-//        viewModel.bottomToolBarVisibility.observe(this){
-//            binding.navigationView.visibility = if (it) {View.VISIBLE} else {View.INVISIBLE}
-//        }
-//
-//        viewModel.bottomItemsVisibility.observe(this){
-//                items ->
-//            binding.navigationView.menu.findItem(R.id.item_add).isVisible = items.add
-//            binding.navigationView.menu.findItem(R.id.item_edit).isVisible = items.edit
-//            binding.navigationView.menu.findItem(R.id.item_delete).isVisible = items.delete
-//        }
     }
 
     private fun listeners() {
@@ -131,6 +111,11 @@ class MainActivity : AppCompatActivity() {
                 else -> {return@setOnItemSelectedListener false}
             }
         }
+    }
+
+    override fun onDestroy() {
+        Log.e(TAG,"MainActivity destroyed")
+        super.onDestroy()
     }
 
     var lastPress: Long = 0

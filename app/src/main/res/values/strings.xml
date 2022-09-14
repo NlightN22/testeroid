@@ -58,6 +58,7 @@
     <string name="edit_user_button_select">Select User</string>
     <string name="edit_test_list_title">Edit Tests</string>
     <string name="edit_user_msg_select">%s selected</string>
+    <string name="user_not_admin">access only for administrator</string>
 
 
 </resources>

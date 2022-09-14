@@ -11,6 +11,7 @@ import space.active.testeroid.helpers.SingleLiveEvent
 import space.active.testeroid.helpers.UiText
 import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.DataBaseRepositoryRealization
+import space.active.testeroid.screens.useredit.UserEditUiState
 
 class UserViewModel(
     // TODO add hint title when list is empty
@@ -65,8 +66,8 @@ class UserViewModel(
             is UserEvents.OnClickItem -> {
                 viewModelScope.launch {
                 _userForEdit = repository.getUser(event.userId)
-                    val selected =  selectedUserAdmin.first()
-                    if (selected) {
+                    val admin =  selectedUserAdmin.first()
+                    if (admin) {
                         uiState(UserUiState.OpenUserEdit)
                     } else if (_userForEdit.userPassword.isNotEmpty()) {
                         uiState(UserUiState.ShowInputPasswordDialog)
@@ -89,6 +90,20 @@ class UserViewModel(
             is UserEvents.CancelDialogPassword -> {
                 _userForEdit = Users() // clear userForEdit
             }
+            is UserEvents.OnAddClick -> {
+                viewModelScope.launch {
+                    val admin = selectedUserAdmin.first()
+                    Log.e(TAG, "OnAddClick admin:$admin")
+                    if (admin) {
+                        _userForEdit = Users()
+                        uiState(UserUiState.OpenUserEdit)
+                    } else {
+                        _errorMsg.emit(UiText.StringResource(
+                            R.string.user_not_admin
+                        ))
+                    }
+                }
+            }
         }
     }
 
@@ -101,6 +116,7 @@ class UserViewModel(
         data class OnClickItem(val userId: Long) : UserEvents()
         data class OnLongClickItem(val userId: Long) : UserEvents()
         data class OkDialogPassword(val password: String) : UserEvents()
+        object OnAddClick: UserEvents()
         object CancelDialogPassword : UserEvents()
     }
 }

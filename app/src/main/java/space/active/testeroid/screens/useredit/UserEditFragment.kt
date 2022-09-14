@@ -9,24 +9,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import space.active.testeroid.APP
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentUserEditBinding
 import space.active.testeroid.screens.SharedViewModel
 import space.active.testeroid.screens.main.MainActivityUiState
+import space.active.testeroid.screens.main.MainActivityViewModel
 
 class UserEditFragment : Fragment() {
 
     lateinit var binding: FragmentUserEditBinding
     lateinit var viewModel: UserEditViewModel
     lateinit var sharedViewModel: SharedViewModel
+    lateinit var activityViewModel: MainActivityViewModel
 
 //    lateinit var viewModelUser: UserViewModel
 
@@ -41,13 +40,14 @@ class UserEditFragment : Fragment() {
         )
             .get(UserEditViewModel::class.java)
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+        activityViewModel = ViewModelProvider(requireActivity()).get(MainActivityViewModel::class.java)
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        APP.viewModel.uiState(MainActivityUiState.ShowModalFragment)
+        activityViewModel.uiState(MainActivityUiState.ShowModalFragment)
         init()
     }
 
@@ -85,6 +85,7 @@ class UserEditFragment : Fragment() {
             binding.editTextPassword.isEnabled = form.password.enabled
             binding.checkBoxAdmin.isChecked = form.administrator.checked
             binding.checkBoxAdmin.isEnabled = form.administrator.enabled
+            binding.buttonOK.isEnabled = form.okEnabled
             binding.buttonDelete.isEnabled = form.deleteEnabled
             binding.buttonSelect.isEnabled = form.selectedEnabled
         }
@@ -130,7 +131,7 @@ class UserEditFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        APP.viewModel.uiState(MainActivityUiState.CloseModalFragment)
+        activityViewModel.uiState(MainActivityUiState.CloseModalFragment)
         Log.e(TAG, "EditUser onDestroy")
         super.onDestroy()
     }

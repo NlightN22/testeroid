@@ -5,6 +5,7 @@ data class UserEditFormState(
     var title: String = "",
     var username: Username = Username(),
     var password: Password = Password(),
+    var okEnabled: Boolean = false,
     var administrator: Administrator = Administrator(),
     var deleteEnabled: Boolean = false,
     var selectedEnabled: Boolean = true,
