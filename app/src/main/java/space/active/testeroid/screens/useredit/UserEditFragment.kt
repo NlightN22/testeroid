@@ -42,12 +42,6 @@ class UserEditFragment : Fragment() {
             .get(UserEditViewModel::class.java)
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
 
-
-//        viewModelUser = ViewModelProvider(requireActivity(),// Need to set MainActivity if want to share ViewModels data
-//            UserViewModelFactory(this.requireContext())
-//        )
-//            .get(UserViewModel::class.java)
-
         return binding.root
     }
 
@@ -65,10 +59,6 @@ class UserEditFragment : Fragment() {
         observers()
         listeners()
 
-
-//        stateViewControllers() // Control and save interface statement
-//        setValuesFromExternal() // set incoming data to interface !After statements controllers
-//        buttonListeners()
     }
 
     private fun handleExternal() {

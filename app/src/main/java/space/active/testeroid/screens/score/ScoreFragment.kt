@@ -71,7 +71,7 @@ class ScoreFragment : Fragment() {
 
         lifecycleScope.launchWhenStarted {
             viewModel.userScore.collectLatest {
-                binding.textUserScore.text = it.toString()
+                binding.textUserScore.text = it
             }
         }
     }

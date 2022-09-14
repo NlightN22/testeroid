@@ -13,6 +13,8 @@ import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.DataBaseRepositoryRealization
 
 class UserViewModel(
+    // TODO add hint title when list is empty
+
     private val repository: DataBaseRepositoryRealization,
     private val dataStore: DataStoreRepository
     ): ViewModel() {

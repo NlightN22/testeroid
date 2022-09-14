@@ -21,8 +21,8 @@ class ScoreViewModel(
     ): ViewModel() {
 
     val userIdFlow: Flow<Long?> = dataStore.userId
-    private var _userScore = MutableStateFlow(0)
-    val userScore: StateFlow<Int> = _userScore
+    private var _userScore = MutableStateFlow("")
+    val userScore: StateFlow<String> = _userScore
 
     private var _currentUser: Users = Users()
 
@@ -88,11 +88,11 @@ class ScoreViewModel(
         }
     }
 
-    fun getUserScore(userId: Long?) {
+    private fun getUserScore(userId: Long?) {
         userId?.let {
             viewModelScope.launch {
                 dataBaseRepository.getUserScoreFlow(it).collectLatest {
-                    _userScore.emit(it)
+                    _userScore.emit(it.toString())
                 }
             }
         }

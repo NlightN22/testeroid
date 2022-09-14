@@ -88,7 +88,11 @@ class UserEditViewModel(
                 _formState.value?.let { form->
                     Log.e(TAG, "UserEditUiState.LastAdmin")
                     form.administrator.enabled = false
-                    form.administrator.checked = true
+                    _editedUser.userAdministrator = true
+                    form.administrator.checked = _editedUser.userAdministrator
+                    form.username.enabled = true
+                    form.password.enabled = true
+                    form.deleteEnabled = false
                     _formState.notifyObserver()
                 }
             }

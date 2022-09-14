@@ -17,6 +17,12 @@ import space.active.testeroid.repository.DataBaseRepositoryRealization
 import space.active.testeroid.screens.edittest.EditTestFragment
 
 class EditTestListViewModel(
+
+    // TODO add select all clear select button at bottom menu
+    // TODO add animation to change bottom menu
+    // TODO add hint title when list is empty
+    // TODO add error when user not admin
+
     private val repository: DataBaseRepositoryRealization,
     private val dataStore: DataStoreRepository
     ): ViewModel() {

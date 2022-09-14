@@ -86,40 +86,4 @@ class MainActivityViewModel(
         _deleteClick.call()
     }
 
-//    var bottomToolBarVisibility = MutableLiveData<Boolean>(false)
-//    var bottomItemsVisibility = MutableLiveData(
-//        ViewStateMain.BottomToolBarButtons(
-//            add = false,
-//            edit = true,
-//            delete = true
-//        )
-//    )
-//    var bottomTabsVisibility = MutableLiveData<Boolean>(true)
-
-
-
-//    fun setViewState(viewState: ViewStateMain) {
-//        when (viewState) {
-//            is ViewStateMain.BottomToolBar -> {
-//                bottomToolBarVisibility.value = viewState.visible
-//                bottomTabsVisibility.value = !bottomToolBarVisibility.value!!
-//            }
-//            is ViewStateMain.BottomToolBarButtons -> {
-//                bottomItemsVisibility.value!!.apply {
-//                    add = viewState.add
-//                    edit = viewState.edit
-//                    delete = viewState.delete
-//                }
-//                bottomItemsVisibility.notifyObserver()
-//            }
-//        }
-//    }
-
-
-
-//    sealed class ViewStateMain{
-//        data class BottomToolBar(var visible: Boolean): ViewStateMain()
-//        data class BottomToolBarButtons(var add: Boolean, var edit: Boolean, var delete: Boolean): ViewStateMain()
-//    }
-
 }
