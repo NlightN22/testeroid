@@ -60,4 +60,8 @@ dependencies {
 
     //Preferences DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    //Lottie
+    def lottieVersion = "5.2.0"
+    implementation "com.airbnb.android:lottie:$lottieVersion"
 }

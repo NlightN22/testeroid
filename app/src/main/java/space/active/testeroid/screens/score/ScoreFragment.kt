@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.databinding.FragmentScoreBinding
@@ -26,7 +27,7 @@ class ScoreFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentScoreBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(
@@ -63,10 +64,15 @@ class ScoreFragment : Fragment() {
             } else {
                 binding.textViewUserTitle.text = getString(R.string.score_user_empty)
             }
-            binding.textUserScore.text = form.score
             binding.layoutScoreParams.isVisible = form.paramsVisibility
             binding.editTextCorrect.setText(form.correctScore)
             binding.editTextNotCorrect.setText(form.notCorrectScore)
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.userScore.collectLatest {
+                binding.textUserScore.text = it.toString()
+            }
         }
     }
 

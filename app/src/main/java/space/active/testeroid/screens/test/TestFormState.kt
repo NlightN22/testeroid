@@ -11,7 +11,8 @@ data class TestFormState (
     var size: String = "",
     var score: String = "",
     var restartVisibility: Boolean = false,
-    var submitEnabled: Boolean = true
+    var submitEnabled: Boolean = true,
+    var finalAnimation: Boolean = false
 )
 
 data class VariantState (

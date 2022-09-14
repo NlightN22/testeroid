@@ -72,6 +72,14 @@ class TestFragment : Fragment() {
             }
             binding.textViewRestart.isVisible = form.restartVisibility
             binding.buttonSubmit.isEnabled = form.submitEnabled
+            if (form.finalAnimation) {
+                binding.finalAnimation.isVisible = true
+                binding.finalAnimation.playAnimation()
+            }
+            else {
+                binding.finalAnimation.isVisible = false
+                binding.finalAnimation.cancelAnimation()
+            }
         }
 
     }

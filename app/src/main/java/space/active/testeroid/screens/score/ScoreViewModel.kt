@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
@@ -21,6 +21,8 @@ class ScoreViewModel(
     ): ViewModel() {
 
     val userIdFlow: Flow<Long?> = dataStore.userId
+    private var _userScore = MutableStateFlow(0)
+    val userScore: StateFlow<Int> = _userScore
 
     private var _currentUser: Users = Users()
 
@@ -33,12 +35,13 @@ class ScoreViewModel(
                 val selectedUserId =  state.userId
                 Log.e(TAG, "selectedUserId: $selectedUserId ")
                 selectedUserId?.let {
+                    getUserScore(it)
                     viewModelScope.launch {
                         _currentUser = dataBaseRepository.getUser(selectedUserId)
                         _formState.value?.let { form ->
                             form.title = true
                             form.username = _currentUser.userName.uppercase()
-                            form.score = _currentUser.score.toString()
+//                            form.score = _currentUser.score.toString()
                             form.paramsVisibility = _currentUser.userAdministrator
                             _formState.notifyObserver()
                             if (_currentUser.userAdministrator) {
@@ -80,6 +83,16 @@ class ScoreViewModel(
                     correct?.let { dataStore.saveCorrectScore(it) }
                     notCorrect?.let { dataStore.saveNotCorrectScore(it) }
                     uiState(ScoreUiState.UpdateParams)
+                }
+            }
+        }
+    }
+
+    fun getUserScore(userId: Long?) {
+        userId?.let {
+            viewModelScope.launch {
+                dataBaseRepository.getUserScoreFlow(it).collectLatest {
+                    _userScore.emit(it)
                 }
             }
         }

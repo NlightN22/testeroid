@@ -7,8 +7,14 @@ import space.active.testeroid.db.modelsdb.Tests
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.db.relations.TestWithQuestions
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class DataBaseRepositoryRealization(private val dao: TestsDao): DataBaseRepository {
+    val userScore: Flow<Int> = flow {
+
+    }
+
     override fun allUsers(): Flow<List<Users>> {
         return dao.getAllUsers()
     }
@@ -27,6 +33,10 @@ class DataBaseRepositoryRealization(private val dao: TestsDao): DataBaseReposito
 
     override suspend fun getUserScore(userId: Long): Int {
         return getUser(userId).score
+    }
+
+    override fun getUserScoreFlow(userId: Long): Flow<Int>  {
+        return dao.getUserFlow(userId).map { user-> user.score }
     }
 
     override suspend fun deleteUser(user: Users) {

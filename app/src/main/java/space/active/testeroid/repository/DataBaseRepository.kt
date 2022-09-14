@@ -15,6 +15,7 @@ interface DataBaseRepository {
     suspend fun getUser(userId: Long): Users
     fun getUserFlow(userId: Long): Flow<Users>
     suspend fun getUserScore(userId: Long): Int
+    fun getUserScoreFlow(userId: Long): Flow<Int>
     suspend fun deleteUser(user: Users)
 
     // Test

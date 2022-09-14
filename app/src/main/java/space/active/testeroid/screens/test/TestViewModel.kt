@@ -39,7 +39,8 @@ class TestViewModel(
     private val _formState = MutableLiveData<TestFormState>(TestFormState())
     val formState: LiveData<TestFormState> = _formState
 
-    private var _ui: TestUiState? = null
+    private var _ui: TestUiState = TestUiState.ShowEmpty
+    val uiState: TestUiState = _ui
 //    val ui: LiveData<TestUiState> = _ui
 
     fun onEvent(events: TestFormEvents){
@@ -48,10 +49,6 @@ class TestViewModel(
             is TestFormEvents.Variant2 -> {uiState(TestUiState.Select(1))}
             is TestFormEvents.Variant3 -> {uiState(TestUiState.Select(2))}
             is TestFormEvents.Variant4 -> {uiState(TestUiState.Select(3))}
-//            is TestFormEvents.Variant1 -> {uiState(TestUiState.ShowCorrect(0))}
-//            is TestFormEvents.Variant2 -> {uiState(TestUiState.ShowCorrect(1))}
-//            is TestFormEvents.Variant3 -> {uiState(TestUiState.ShowCorrect(2))}
-//            is TestFormEvents.Variant4 -> {uiState(TestUiState.ShowCorrect(3))}
             is TestFormEvents.Restart -> {uiState(TestUiState.Restart(events.listTests))}
             is TestFormEvents.Submit -> {
                 viewModelScope.launch {
@@ -77,26 +74,30 @@ class TestViewModel(
     fun uiState(state: TestUiState) {
         when (state) {
             is TestUiState.ShowFirst -> {
-                Log.e(TAG, "TestUiState.ShowFirst _currentList: $_currentList")
-                _formState.value?.let { form-> form.restartVisibility = false }
-                if (_currentList.isNullOrEmpty()) {
-                    if (state.listTests.isNotEmpty()) {
-                        _currentList = state.listTests
-                        _count = 0
-                        _currentTest = _currentList[_count]
-                        _currentTest.questions = _currentTest.questions.shuffled()
-                        _size = state.listTests.size
-                    } else {
-                        uiState(TestUiState.ShowEmpty)
+                if (_ui == TestUiState.ShowEmpty || _ui !=TestUiState.Final) {
+                    _ui = state
+                    Log.e(TAG, "TestUiState.ShowFirst _currentList: $_currentList")
+                    _formState.value?.let { form -> form.restartVisibility = false }
+                    if (_currentList.isNullOrEmpty()) {
+                        if (state.listTests.isNotEmpty()) {
+                            _currentList = state.listTests
+                            _count = 0
+                            _currentTest = _currentList[_count]
+                            _currentTest.questions = _currentTest.questions.shuffled()
+                            _size = state.listTests.size
+                        } else {
+                            uiState(TestUiState.ShowEmpty)
+                        }
                     }
-                }
-                if (_currentList.isNotEmpty()) {
-                    Log.e(TAG, "TestUiState.ShowFirst _currentList isNotEmpty: $_currentList")
-                    updateVariants()
-                    setForm()
+                    if (_currentList.isNotEmpty()) {
+                        Log.e(TAG, "TestUiState.ShowFirst _currentList isNotEmpty: $_currentList")
+                        updateVariants()
+                        setForm()
+                    }
                 }
             }
             is TestUiState.ShowNext -> {
+                _ui = state
                 updateVariants()
                 _formState.value?.let {
                     _currentList.let { list ->
@@ -113,6 +114,7 @@ class TestViewModel(
                 }
             }
             is TestUiState.ShowCorrect -> {
+                _ui = state
                 _formState.value?.let { form ->
                     form.variants.forEachIndexed { index, variant ->
                         if (variant.selected) {
@@ -124,6 +126,11 @@ class TestViewModel(
                 }
             }
             is TestUiState.Restart -> {
+                _ui = state
+                _formState.value?.let {
+                    it.finalAnimation = false
+                    _formState.notifyObserver()
+                }
                 _score = 0
                 _currentList = listOf()
                 state.listTests?.let {
@@ -132,6 +139,7 @@ class TestViewModel(
                 }
             }
             is TestUiState.Final -> {
+                _ui = state
                 // Show score and congratulations
                 viewModelScope.launch {
                     val userName = selectedUser.first()?.let { userId ->
@@ -146,6 +154,7 @@ class TestViewModel(
                         form.variants.forEach { it.enabled = false }
                         form.restartVisibility = true
                         form.submitEnabled = false
+                        form.finalAnimation = true
                     }
                     _formState.notifyObserver()
                     // Write score to DB user
