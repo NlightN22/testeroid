@@ -8,9 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import space.active.testeroid.DATA_BASE_NAME
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Questions
 import space.active.testeroid.db.modelsdb.Tests
@@ -109,9 +107,9 @@ class MainActivityViewModel(
     private val _deleteClick = SingleLiveEvent<Any>()
     val deleteClick: LiveData<Any> get() = _deleteClick
 
-    fun deleteDataBase(context: Context) {
-        context.deleteDatabase("$DATA_BASE_NAME") // This can delete Database if necessary
-    }
+//    fun deleteDataBase(context: Context) {
+//        context.deleteDatabase("$DATA_BASE_NAME") // This can delete Database if necessary
+//    }
 
     fun addOnClick (){
         _addClick.call()

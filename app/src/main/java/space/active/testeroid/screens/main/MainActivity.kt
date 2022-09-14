@@ -15,13 +15,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import space.active.testeroid.DATA_STORE_NAME
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.adapter.PageAdapter
 import space.active.testeroid.databinding.ActivityMainBinding
-import space.active.testeroid.screens.useredit.UserEditViewModel
 
+const val DATA_STORE_NAME = "TesteroidPreference"
 
 // At the top level of your kotlin file for the one instance of DataStore
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DATA_STORE_NAME)

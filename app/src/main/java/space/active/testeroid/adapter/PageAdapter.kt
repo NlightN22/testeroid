@@ -4,12 +4,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import space.active.testeroid.*
 import space.active.testeroid.screens.edittestlist.EditTestListFragment
 import space.active.testeroid.screens.score.ScoreFragment
 import space.active.testeroid.screens.test.TestFragment
 import space.active.testeroid.screens.user.UserFragment
-import space.active.testeroid.screens.useredit.UserEditFragment
+
+const val NUMBER_OF_PAGES = 4
+
 
 class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle) {
     override fun getItemCount(): Int {

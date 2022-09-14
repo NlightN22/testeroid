@@ -5,7 +5,7 @@
     <string name="error">Error fun %s is %s</string>
 
     <string name="edit_test_list_add_test">Add test item</string>
-    <string name="scrolldescription">Scroll into edit test</string>
+    <string name="scroll_description">Scroll into edit test</string>
     <string name="edit_test_title">Input you test here:</string>
     <string name="edit_variant_title">Variants:</string>
     <string name="edit_test_title_hint">Title</string>

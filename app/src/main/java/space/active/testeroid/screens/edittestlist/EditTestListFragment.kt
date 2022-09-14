@@ -196,7 +196,6 @@ class EditTestListFragment : Fragment() {
         viewModelMain.uiState(MainActivityUiState.ShowTabs)
     }
 
-    // TODO overcoding delete this fun
     private fun sendItemsToAdapter(list: List<Tests>) {
         val selectedList: List<Long> = list.map { it.testId }
         Log.e(TAG,"setSelected selectedList: $selectedList")

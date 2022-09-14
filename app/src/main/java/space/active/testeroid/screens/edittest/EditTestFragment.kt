@@ -23,7 +23,6 @@ import space.active.testeroid.screens.main.MainActivityViewModel
 class EditTestFragment : Fragment() {
     lateinit var binding: FragmentEditTestBinding
     lateinit var viewModel: EditTestViewModel
-//    lateinit var viewModelEditList: EditTestListViewModel
     lateinit var sharedViewModel: SharedViewModel
     lateinit var activityViewModel: MainActivityViewModel
 
@@ -92,10 +91,6 @@ class EditTestFragment : Fragment() {
                 textInputLayout.check(formState.listSelected[index])
             }
         }
-
-//        viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-//            Log.e(TAG, "viewModel.uiState.observe: $uiState")
-//        }
 
         lifecycleScope.launchWhenStarted {
             viewModel.uiEvent.collectLatest { validationResult->

@@ -1,24 +1,28 @@
 package space.active.testeroid.screens.user
 
 import android.util.Log
-import androidx.lifecycle.*
-import kotlinx.coroutines.flow.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import space.active.testeroid.R
 import space.active.testeroid.TAG
 import space.active.testeroid.db.modelsdb.Users
 import space.active.testeroid.helpers.SingleLiveEvent
 import space.active.testeroid.helpers.UiText
-import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.DataBaseRepositoryRealization
-import space.active.testeroid.screens.useredit.UserEditUiState
+import space.active.testeroid.repository.DataStoreRepository
 
 class UserViewModel(
     // TODO add hint title when list is empty
 
     private val repository: DataBaseRepositoryRealization,
     private val dataStore: DataStoreRepository
-    ): ViewModel() {
+) : ViewModel() {
 
     val selectedUserId: Flow<Long?> = dataStore.userId
     val selectedUserAdmin: Flow<Boolean> = dataStore.admin
@@ -55,7 +59,6 @@ class UserViewModel(
 
                 // call open new Fragment
                 _openEditUserEvent.value = _userForEdit
-                // clear _userforedit
                 _userForEdit = Users() // clear userForEdit
             }
         }
@@ -65,8 +68,8 @@ class UserViewModel(
         when (event) {
             is UserEvents.OnClickItem -> {
                 viewModelScope.launch {
-                _userForEdit = repository.getUser(event.userId)
-                    val admin =  selectedUserAdmin.first()
+                    _userForEdit = repository.getUser(event.userId)
+                    val admin = selectedUserAdmin.first()
                     if (admin) {
                         uiState(UserUiState.OpenUserEdit)
                     } else if (_userForEdit.userPassword.isNotEmpty()) {
@@ -98,9 +101,11 @@ class UserViewModel(
                         _userForEdit = Users()
                         uiState(UserUiState.OpenUserEdit)
                     } else {
-                        _errorMsg.emit(UiText.StringResource(
-                            R.string.user_not_admin
-                        ))
+                        _errorMsg.emit(
+                            UiText.StringResource(
+                                R.string.user_not_admin
+                            )
+                        )
                     }
                 }
             }
@@ -116,7 +121,7 @@ class UserViewModel(
         data class OnClickItem(val userId: Long) : UserEvents()
         data class OnLongClickItem(val userId: Long) : UserEvents()
         data class OkDialogPassword(val password: String) : UserEvents()
-        object OnAddClick: UserEvents()
+        object OnAddClick : UserEvents()
         object CancelDialogPassword : UserEvents()
     }
 }

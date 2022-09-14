@@ -27,8 +27,6 @@ class UserEditFragment : Fragment() {
     lateinit var sharedViewModel: SharedViewModel
     lateinit var activityViewModel: MainActivityViewModel
 
-//    lateinit var viewModelUser: UserViewModel
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,9 +50,7 @@ class UserEditFragment : Fragment() {
     }
 
     private fun init(){
-        // TODO clear sharedviewmodel userforedit
         Log.e(TAG, "${this} created")
-
         handleExternal()
         observers()
         listeners()
