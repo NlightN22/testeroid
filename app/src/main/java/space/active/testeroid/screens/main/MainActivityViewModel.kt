@@ -87,12 +87,12 @@ class MainActivityViewModel(
                 dataStore.saveSelectedUser(firstUser)
                 repository.addUser(firstUser)
                 repository.addNewTestWithQuestions(
-                    Tests(testName = "Demonstration test. Please select the correct answer."),
+                    Tests(testName = "Demonstration test. Please select the correct answer:"),
                     listOf(
-                        Questions(questionId = 0, questionName = "Correct", correctAnswer = true),
-                        Questions(questionId = 0, questionName = "NotCorrect", correctAnswer = false),
-                        Questions(questionId = 0, questionName = "NotCorrect", correctAnswer = false),
-                        Questions(questionId = 0, questionName = "NotCorrect", correctAnswer = false),
+                        Questions(questionId = 0, questionName = "Sample Correct", correctAnswer = true),
+                        Questions(questionId = 0, questionName = "Sample NotCorrect", correctAnswer = false),
+                        Questions(questionId = 0, questionName = "Sample Correct", correctAnswer = true),
+                        Questions(questionId = 0, questionName = "Sample NotCorrect", correctAnswer = false),
                     )
                 )
                 dataStore.saveFirstStart(false)

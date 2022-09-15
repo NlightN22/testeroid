@@ -92,37 +92,35 @@
             app:layout_constraintTop_toBottomOf="@+id/text_input_title" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            app:boxStrokeColor="@color/yellow"
-            app:hintTextColor="@color/yellow"
-            android:hint="@string/edit_test_variant_hint"
             android:id="@+id/text_input_layout1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/variants"
             android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
             android:layout_marginTop="@dimen/edit_text_margin_top"
-            app:endIconMode="custom"
+            android:layout_marginEnd="32dp"
+            android:hint="@string/edit_test_variant_hint"
+            app:boxStrokeColor="@color/yellow"
+            app:counterEnabled="true"
+            app:counterMaxLength="@integer/variant_max_length"
             app:endIconCheckable="true"
             app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
-            app:counterEnabled="true"
-            app:counterMaxLength="20"
-            >
+            app:endIconMode="custom"
+            app:hintTextColor="@color/yellow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/variants">
 
-        <EditText
-            android:id="@+id/editTextVariant1"
-            android:textCursorDrawable="@drawable/ic_cursor_3dp"
-            android:textColor="@color/dark_blue"
-            android:textSize="@dimen/buttons_text_size"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="textPersonName"
-            android:maxLength="20"
-            />
+            <EditText
+                android:id="@+id/editTextVariant1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="textPersonName"
+                android:maxLength="@integer/variant_max_length"
+                android:textColor="@color/dark_blue"
+                android:textCursorDrawable="@drawable/ic_cursor_3dp"
+                android:textSize="@dimen/buttons_text_size" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -144,7 +142,7 @@
             app:endIconCheckable="true"
             app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
             app:counterEnabled="true"
-            app:counterMaxLength="20"
+            app:counterMaxLength="@integer/variant_max_length"
             >
 
             <com.google.android.material.textfield.TextInputEditText
@@ -156,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:inputType="textPersonName"
-                android:maxLength="20"
+                android:maxLength="@integer/variant_max_length"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -179,7 +177,7 @@
             app:endIconCheckable="true"
             app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
             app:counterEnabled="true"
-            app:counterMaxLength="20"
+            app:counterMaxLength="@integer/variant_max_length"
             >
 
             <com.google.android.material.textfield.TextInputEditText
@@ -191,7 +189,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:inputType="textPersonName"
-                android:maxLength="20"
+                android:maxLength="@integer/variant_max_length"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -214,7 +212,7 @@
             app:endIconCheckable="true"
             app:endIconDrawable="@drawable/ic_baseline_check_circle_24"
             app:counterEnabled="true"
-            app:counterMaxLength="20"
+            app:counterMaxLength="@integer/variant_max_length"
             >
 
             <com.google.android.material.textfield.TextInputEditText
@@ -227,7 +225,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:inputType="textPersonName"
-                android:maxLength="20"
+                android:maxLength="@integer/variant_max_length"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
