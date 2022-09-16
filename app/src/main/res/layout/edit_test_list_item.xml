@@ -25,9 +25,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:backgroundTint="@color/yellow"
-        android:visibility="invisible"
-        app:srcCompat="@drawable/ic_baseline_check_circle_24" />
+        android:visibility="gone"
+        app:tint="@color/yellow"
+        app:srcCompat="@drawable/ic_baseline_check_circle_24"
+        android:layout_gravity="end"
+        />
 
 
 </androidx.cardview.widget.CardView>

@@ -1,11 +1,13 @@
 package space.active.testeroid.adapter
 
+import android.opengl.Visibility
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import space.active.testeroid.R
 import space.active.testeroid.TAG
@@ -14,12 +16,14 @@ import space.active.testeroid.TAG
 class RecyclerViewAdapter(
     // construct and initialize interface for listen clicks
     private val itemClickListener: ItemClickListener,
+    private val checkBoxVisibility: Boolean
 ): RecyclerView.Adapter<RecyclerViewAdapter.ListHolder>()  {
 
     // Create interfaces for listen clicks start
     interface ItemClickListener {
         fun onItemClick(values: AdapterItems)
         fun onItemLongClick(values: AdapterItems)
+        fun onCheckBoxClick(value: AdapterItems)
     }
     // Create interfaces for listen clicks end
 
@@ -43,10 +47,20 @@ class RecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ListHolder, position: Int) {
+        holder.imCheck.isVisible = checkBoxVisibility
+
         listItems[position].position = holder.adapterPosition
         holder.tvTitle.text = listItems[position].itemName
 
-        holder.imCheck.visibility = if (listItems[position].selected) {View.VISIBLE} else {View.INVISIBLE}
+        if (checkBoxVisibility) {
+            holder.imCheck.checkTintColor(listItems[position].selected)
+        } else {
+            holder.imCheck.checkVisible(listItems[position].selected)
+        }
+
+        holder.imCheck.setOnClickListener {
+            itemClickListener.onCheckBoxClick(listItems[position])
+        }
 
         holder.itemView.setOnClickListener {
             itemClickListener.onItemClick(listItems[position])
@@ -57,6 +71,18 @@ class RecyclerViewAdapter(
             return@setOnLongClickListener true
         }
         // Bind click listener end
+    }
+
+    private fun ImageView.checkVisible (value: Boolean) {
+        this.isVisible = value
+    }
+
+    private fun ImageView.checkTintColor (value: Boolean) {
+        if (value) {
+            this.imageTintList = context?.getColorStateList(R.color.yellow)
+        } else {
+            this.imageTintList = context?.getColorStateList(R.color.gray_70)
+        }
     }
 
     override fun getItemCount(): Int {

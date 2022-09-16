@@ -87,6 +87,9 @@ class EditTestListViewModel(
                             _selectedTestsList.notifyObserver()
                         }
                     }
+                    is EditTestListEvents.OnCheckBoxClick -> {
+
+                    }
                 }
             }
         }

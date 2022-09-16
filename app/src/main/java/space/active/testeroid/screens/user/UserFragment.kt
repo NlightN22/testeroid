@@ -25,6 +25,7 @@ import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.DataBaseRepositoryRealization
 import space.active.testeroid.repository.DataStoreRepositoryImplementation
 import space.active.testeroid.screens.SharedViewModel
+import space.active.testeroid.screens.edittestlist.EditTestListEvents
 import space.active.testeroid.screens.main.MainActivityViewModel
 import space.active.testeroid.screens.main.MainActivityViewModelFactory
 import space.active.testeroid.screens.useredit.UserEditEvents
@@ -75,7 +76,12 @@ class UserFragment : Fragment() {
                     val userId = values.itemId
                     onItemLongClick(userId)
                 }
-            }
+
+                override fun onCheckBoxClick(value: RecyclerViewAdapter.AdapterItems) {
+                    viewModel.onEvent(UserEvents.OnCheckBoxClick(value.itemId))
+                }
+            },
+            checkBoxVisibility = true
         )
         recyclerView.adapter = adapter
         observers(adapter)
@@ -123,18 +129,18 @@ class UserFragment : Fragment() {
     private fun listeners() {
         binding.fbAddItem.setOnClickListener {
             Log.e(TAG, "Click to ADD")
-            viewModel.onEvent(UserViewModel.UserEvents.OnAddClick)
+            viewModel.onEvent(UserEvents.OnAddClick)
 //            openFragment(UserEditFragment())
         }
     }
 
     private fun onItemClick(userId: Long){
-        viewModel.onEvent(UserViewModel.UserEvents.OnClickItem(userId))
+        viewModel.onEvent(UserEvents.OnClickItem(userId))
 //        openEditFragment(userId)
     }
 
     private fun onItemLongClick(userId: Long){
-        viewModel.onEvent(UserViewModel.UserEvents.OnLongClickItem(userId))
+        viewModel.onEvent(UserEvents.OnLongClickItem(userId))
     }
 
     private fun openFragment(newFragment: Fragment){
@@ -156,13 +162,13 @@ class UserFragment : Fragment() {
             .setView(passwordLayout.root)
             .setPositiveButton(R.string.dialog_OK) {_ , _ ->
                 val result = passwordLayout.editTextPassword.text.toString()
-                viewModel.onEvent(UserViewModel.UserEvents.OkDialogPassword(result))
+                viewModel.onEvent(UserEvents.OkDialogPassword(result))
             }
             .setNegativeButton("Cancel") {_,_ ->
-                viewModel.onEvent(UserViewModel.UserEvents.CancelDialogPassword)
+                viewModel.onEvent(UserEvents.CancelDialogPassword)
             }
             .setOnCancelListener {
-                viewModel.onEvent(UserViewModel.UserEvents.CancelDialogPassword)
+                viewModel.onEvent(UserEvents.CancelDialogPassword)
                 toastMessage("Cancelled") }
             .create()
         passwordInputDialog.show()

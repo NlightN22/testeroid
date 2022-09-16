@@ -81,7 +81,12 @@ class EditTestListFragment : Fragment() {
                 override fun onItemLongClick(item: RecyclerViewAdapter.AdapterItems) {
                     clickLongItemInAdapter(item)
                 }
-            }
+
+                override fun onCheckBoxClick(value: RecyclerViewAdapter.AdapterItems) {
+                    viewModel.onEvent(EditTestListEvents.OnCheckBoxClick(value.itemId))
+                }
+            },
+            checkBoxVisibility = false
         )
         recyclerView.adapter = adapter
 

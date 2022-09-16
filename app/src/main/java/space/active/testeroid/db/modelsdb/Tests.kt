@@ -11,4 +11,3 @@ data class Tests (
     @ColumnInfo
     var testName: String =  "empty"
 )
-// Serializable need to work sending serializable data to fragment

@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import space.active.testeroid.TAG
@@ -35,17 +35,24 @@ class ScoreViewModel(
                 val selectedUserId =  state.userId
                 Log.e(TAG, "selectedUserId: $selectedUserId ")
                 selectedUserId?.let {
-                    getUserScore(it)
                     viewModelScope.launch {
                         _currentUser = dataBaseRepository.getUser(selectedUserId)
-                        _formState.value?.let { form ->
-                            form.title = true
-                            form.username = _currentUser.userName.uppercase()
+                        _currentUser?.let { user ->
+                            getUserScore(user.userId)
+                            _formState.value?.let { form ->
+                                form.title = true
+                                form.username = _currentUser.userName.uppercase()
 //                            form.score = _currentUser.score.toString()
-                            form.paramsVisibility = _currentUser.userAdministrator
-                            _formState.notifyObserver()
-                            if (_currentUser.userAdministrator) {
-                                uiState(ScoreUiState.UpdateParams)
+                                form.paramsVisibility = _currentUser.userAdministrator
+                                _formState.notifyObserver()
+                                if (_currentUser.userAdministrator) {
+                                    uiState(ScoreUiState.UpdateParams)
+                                }
+                            }
+                        }?: run {
+                            _formState.value?.let { form ->
+                                form.title = false
+                                form.paramsVisibility = false
                             }
                         }
                     }
@@ -89,10 +96,10 @@ class ScoreViewModel(
     }
 
     private fun getUserScore(userId: Long?) {
-        userId?.let {
-            viewModelScope.launch {
-                dataBaseRepository.getUserScoreFlow(it).collectLatest {
-                    _userScore.emit(it.toString())
+        viewModelScope.launch {
+            userId?.let { userId->
+                dataBaseRepository.getUserScoreFlow(userId).collectLatest { score->
+                    _userScore.emit(score.toString())
                 }
             }
         }

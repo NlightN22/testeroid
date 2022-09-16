@@ -14,6 +14,7 @@ import space.active.testeroid.helpers.UiText
 import space.active.testeroid.helpers.notifyObserver
 import space.active.testeroid.repository.DataStoreRepository
 import space.active.testeroid.repository.DataBaseRepository
+import space.active.testeroid.screens.use_cases.SelectUser
 
 class UserEditViewModel(
     private val dataBaseRepository: DataBaseRepository,
@@ -171,8 +172,7 @@ class UserEditViewModel(
                 if (validateForm()) {
                     viewModelScope.launch {
                         dataBaseRepository.addUser(_editedUser)
-                        onEvent(UserEditEvents.OnSelectClick)
-//                        _terminateSignal.emit(true)
+                        _terminateSignal.emit(true)
                     }
                 }
             }
@@ -189,11 +189,16 @@ class UserEditViewModel(
             }
             is UserEditEvents.OnSelectClick -> {
                 viewModelScope.launch {
-                    dataStore.saveSelectedUser(_editedUser)
-                    Log.e(TAG, "OnSelectClick saveSelectedUser: $_editedUser")
-                    uiState(UserEditUiState.ShowError(UiText.StringResource(
-                            R.string.edit_user_msg_select, _editedUser.userName
-                        )))
+                    val result = SelectUser(dataBaseRepository, dataStore).invoke(_editedUser.userId)
+                    if (result.userName.isNotEmpty() && result.userName.isNotBlank()) {
+                        uiState(
+                            UserEditUiState.ShowError(
+                                UiText.StringResource(
+                                    R.string.edit_user_msg_select, _editedUser.userName
+                                )
+                            )
+                        )
+                    }
                     _terminateSignal.emit(true)
                 }
             }
